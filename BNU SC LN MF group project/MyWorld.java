@@ -13,11 +13,11 @@ public class MyWorld extends World
      * Constructor for objects of class MyWorld.
      * 
      */
+    public int gravityAcc = 10;
+    public int floorHeight = getHeight() * 2/3;
     public MyWorld()
     {    
         super(600, 400, 1);
         Greenfoot.setSpeed(50);
-        Player player = new Player();
-        player.setLocation(getWidth()/2, getHeight() * 2/3);
     }
 }

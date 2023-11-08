@@ -1,12 +1,12 @@
 #Greenfoot project file
 class.Player.image=man01.png
-dependency1.from=MyWorld
-dependency1.to=Player
+dependency1.from=Player
+dependency1.to=MyWorld
 dependency1.type=UsesDependency
-editor.fx.0.height=731
-editor.fx.0.width=816
-editor.fx.0.x=49
-editor.fx.0.y=251
+editor.fx.0.height=1047
+editor.fx.0.width=974
+editor.fx.0.x=953
+editor.fx.0.y=0
 height=1047
 package.numDependencies=1
 package.numTargets=2
@@ -41,5 +41,5 @@ target2.y=0
 version=3.1.0
 width=974
 world.lastInstantiated=MyWorld
-xPosition=953
-yPosition=0
+xPosition=4
+yPosition=12
