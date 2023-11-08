@@ -19,5 +19,6 @@ public class MyWorld extends World
     {    
         super(600, 400, 1);
         Greenfoot.setSpeed(50);
+        addObject(new Player(), getWidth()/2, floorHeight);
     }
 }

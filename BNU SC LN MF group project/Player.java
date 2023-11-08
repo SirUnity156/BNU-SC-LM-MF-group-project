@@ -21,9 +21,11 @@ public class Player extends Actor
     private int groundAcc = 2;
     private double groundFriction = 0.2;
     private double airFriction = 0.1;
-    private int jumpSpeed = 50;
+    private int jumpSpeed = 25;
     private int jumps = 1;
     private int remainingJumps = jumps;
+    private int jumpCooldownTicks = 5;
+    private int ticksSinceLastJump = 0;
     //private MyWorld thisWorld = new MyWorld();
     public Player() {
         
@@ -34,7 +36,6 @@ public class Player extends Actor
         getInputs();
         applyInputs();
         applyMovement();
-        
     }
     private void getInputs() {
         pressingLeft = Greenfoot.isKeyDown(leftKey);
@@ -60,12 +61,17 @@ public class Player extends Actor
         if(pressingRight) xVel += groundAcc;
     }
     private void applyJumpInput() {
-        if(grounded) remainingJumps = jumps;
-        if(pressingUp && remainingJumps > 0) {
+        if(grounded) {
+            remainingJumps = jumps;
+            yVel = 0;
+        }
+        if(pressingUp && remainingJumps > 0 && ticksSinceLastJump >= jumpCooldownTicks) {
             yVel -= jumpSpeed;
             remainingJumps--;
-            if(yVel < 0) grounded = false;
+            grounded = false;
+            ticksSinceLastJump = 0;
         }
+        else ticksSinceLastJump++;
     }
     private void applyMovement() {
         setLocation(getX() + xVel, getY() + yVel);
@@ -79,6 +85,7 @@ public class Player extends Actor
         else xVel *= 1-(airFriction*multiplier);
     }
     private boolean isGrounded() {
+        if(ticksSinceLastJump < 5) return false;
         return getY() >= new MyWorld().floorHeight;
     }
     private void applyGravity() {
