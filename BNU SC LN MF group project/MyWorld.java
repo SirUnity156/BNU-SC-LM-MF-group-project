@@ -13,7 +13,7 @@ public class MyWorld extends World
      * Constructor for objects of class MyWorld.
      * 
      */
-    public int gravityAcc = 10;
+    public int gravityAcc = 2;
     public int floorHeight = getHeight() * 2/3;
     public MyWorld()
     {    

@@ -21,12 +21,12 @@ public class Player extends Actor
     private int groundAcc = 2;
     private double groundFriction = 0.2;
     private double airFriction = 0.1;
-    private int jumpSpeed = 10;
+    private int jumpSpeed = 50;
     private int jumps = 1;
     private int remainingJumps = jumps;
     //private MyWorld thisWorld = new MyWorld();
     public Player() {
-        super();
+        
     }
     public void act()
     {
@@ -64,7 +64,7 @@ public class Player extends Actor
         if(pressingUp && remainingJumps > 0) {
             yVel -= jumpSpeed;
             remainingJumps--;
-            grounded = false;
+            if(yVel < 0) grounded = false;
         }
     }
     private void applyMovement() {
