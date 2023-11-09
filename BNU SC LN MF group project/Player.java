@@ -1,11 +1,14 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
-/**
- * Write a description of class Player here.
- * 
- * @author (your name) 
- * @version (a version number or a date)
+/**--Planned Development--
+ * No double jump from holding up
+ * Variable jump height
+ * Coyote time & jump buffer
+ * Slide
+ * Decrease gravity at jump apex
+ * Max speed (decrease accel proportionally to speed relative to max speed)
  */
+
 public class Player extends Actor
 {
     private String leftKey = "left";
@@ -26,10 +29,7 @@ public class Player extends Actor
     private int remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
-    //private MyWorld thisWorld = new MyWorld();
-    public Player() {
-        
-    }
+
     public void act()
     {
         grounded = isGrounded();
