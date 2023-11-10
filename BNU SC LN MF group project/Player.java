@@ -21,7 +21,8 @@ public class Player extends Actor
     private double counterStrafingFrictionMultiplier = 5;
     private int xVel = 0;
     private int yVel = 0;
-    private int groundAcc = 2;
+    private double groundAcc = 2;
+    private double airAcc = 1;
     private double groundFriction = 0.2;
     private double airFriction = 0.1;
     private int jumpSpeed = 25;
@@ -29,6 +30,7 @@ public class Player extends Actor
     private int remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
+    private int maxXSpeed = 15;
 
     public void act()
     {
@@ -53,12 +55,24 @@ public class Player extends Actor
             applyFriction(1);
             return;
         }
-        else if((pressingLeft && xVel > 0) || (pressingRight && xVel < 0)){
+        if((pressingLeft && xVel > 0) || (pressingRight && xVel < 0)){
             applyFriction(counterStrafingFrictionMultiplier);
             return;
         }
-        if(pressingLeft) xVel -= groundAcc;
-        if(pressingRight) xVel += groundAcc;
+        
+        if(Math.abs(xVel) >= maxXSpeed) {
+            xVel = maxXSpeed * (xVel/Math.abs(xVel));
+            return;
+        }
+        
+        
+        if(grounded) {
+            if(pressingLeft) xVel -= groundAcc;
+            if(pressingRight) xVel += groundAcc;
+            return;
+        }
+        if(pressingLeft) xVel -= airAcc;
+        if(pressingRight) xVel += airAcc;
     }
     private void applyJumpInput() {
         if(grounded) {

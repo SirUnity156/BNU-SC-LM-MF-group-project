@@ -17,7 +17,7 @@ public class MyWorld extends World
     public int floorHeight = getHeight() * 2/3;
     public MyWorld()
     {    
-        super(600, 400, 1);
+        super(1000, 400, 1);
         Greenfoot.setSpeed(50);
         addObject(new Player(), getWidth()/2, floorHeight);
     }
