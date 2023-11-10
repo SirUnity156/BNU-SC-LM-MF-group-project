@@ -31,6 +31,7 @@ public class Player extends Actor
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
     private int maxXSpeed = 15;
+    private boolean hasJumpedOnThisUpInput = false;
 
     public void act()
     {
@@ -79,13 +80,17 @@ public class Player extends Actor
             remainingJumps = jumps;
             yVel = 0;
         }
-        if(pressingUp && remainingJumps > 0 && ticksSinceLastJump >= jumpCooldownTicks) {
+        if(pressingUp && remainingJumps > 0 && ticksSinceLastJump >= jumpCooldownTicks && !hasJumpedOnThisUpInput) {
             yVel -= jumpSpeed;
             remainingJumps--;
             grounded = false;
             ticksSinceLastJump = 0;
+            hasJumpedOnThisUpInput = true;
         }
-        else ticksSinceLastJump++;
+        else {
+            ticksSinceLastJump++;
+            if(!pressingUp) hasJumpedOnThisUpInput = false;
+        }
     }
     private void applyMovement() {
         setLocation(getX() + xVel, getY() + yVel);
