@@ -32,6 +32,9 @@ public class Player extends Actor
     private int ticksSinceLastJump = 0;
     private int maxXSpeed = 15;
     private boolean hasJumpedOnThisUpInput = false;
+    private boolean jumpBufferActive = false;
+    private int jumpBufferDuration = 7;
+    private int ticksSinceJumpBufferActive = 0;
 
     public void act()
     {
@@ -76,16 +79,25 @@ public class Player extends Actor
         if(pressingRight) xVel += airAcc;
     }
     private void applyJumpInput() {
+        if(jumpBufferActive) {
+            ticksSinceJumpBufferActive++;
+            if(ticksSinceJumpBufferActive > jumpBufferDuration) jumpBufferActive = false;
+        }
         if(grounded) {
             remainingJumps = jumps;
             yVel = 0;
         }
-        if(pressingUp && remainingJumps > 0 && ticksSinceLastJump >= jumpCooldownTicks && !hasJumpedOnThisUpInput) {
+        else if(pressingUp && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput && !jumpBufferActive) {
+            jumpBufferActive = true;
+            ticksSinceJumpBufferActive = 0;
+        }
+        if((pressingUp || jumpBufferActive) && remainingJumps > 0 && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput) {
             yVel -= jumpSpeed;
             remainingJumps--;
             grounded = false;
             ticksSinceLastJump = 0;
             hasJumpedOnThisUpInput = true;
+            jumpBufferActive = false;
         }
         else {
             ticksSinceLastJump++;
