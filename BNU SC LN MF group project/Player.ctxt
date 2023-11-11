@@ -1,6 +1,6 @@
 #BlueJ class context
 comment0.target=Player
-comment0.text=--Planned\ Development--\r\n\ No\ double\ jump\ from\ holding\ up\r\n\ Variable\ jump\ height\r\n\ Coyote\ time\ &\ jump\ buffer\r\n\ Slide\r\n\ Decrease\ gravity\ at\ jump\ apex\r\n\ Max\ speed\ (decrease\ accel\ proportionally\ to\ speed\ relative\ to\ max\ speed)\r\n
+comment0.text=--Planned\ Development--\r\n\ Coyote\ time\r\n\ Slide\r\n\ Decrease\ gravity\ at\ jump\ apex\r\n
 comment1.params=
 comment1.target=void\ act()
 comment10.params=

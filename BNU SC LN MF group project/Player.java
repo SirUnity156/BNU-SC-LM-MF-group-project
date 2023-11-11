@@ -1,12 +1,9 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 /**--Planned Development--
- * No double jump from holding up
- * Variable jump height
- * Coyote time & jump buffer
+ * Coyote time
  * Slide
  * Decrease gravity at jump apex
- * Max speed (decrease accel proportionally to speed relative to max speed)
  */
 
 public class Player extends Actor
@@ -14,24 +11,32 @@ public class Player extends Actor
     private String leftKey = "left";
     private String rightKey = "right";
     private String upKey = "up";
+    
     private boolean pressingUp = false;
     private boolean pressingLeft = false;
     private boolean pressingRight = false;
     private boolean grounded = false;
-    private double counterStrafingFrictionMultiplier = 5;
-    private int xVel = 0;
-    private int yVel = 0;
-    private double groundAcc = 2;
-    private double airAcc = 1;
+    
+    private boolean pressUpLastTick = false;
+    
     private double groundFriction = 0.2;
     private double airFriction = 0.1;
+    private double counterStrafingFrictionMultiplier = 5;
+    
+    private int xVel = 0;
+    private int yVel = 0;
+    private int maxXSpeed = 15;
+    
+    private double groundAcc = 2;
+    private double airAcc = 1;
+    
     private int jumpSpeed = 25;
     private int jumps = 1;
     private int remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
-    private int maxXSpeed = 15;
     private boolean hasJumpedOnThisUpInput = false;
+    
     private boolean jumpBufferActive = false;
     private int jumpBufferDuration = 7;
     private int ticksSinceJumpBufferActive = 0;
@@ -39,11 +44,14 @@ public class Player extends Actor
     public void act()
     {
         grounded = isGrounded();
+        
         getInputs();
         applyInputs();
         applyMovement();
     }
     private void getInputs() {
+        pressUpLastTick = pressingUp;
+        
         pressingLeft = Greenfoot.isKeyDown(leftKey);
         pressingRight = Greenfoot.isKeyDown(rightKey);
         pressingUp = Greenfoot.isKeyDown(upKey);
@@ -79,6 +87,7 @@ public class Player extends Actor
         if(pressingRight) xVel += airAcc;
     }
     private void applyJumpInput() {
+        if(pressUpLastTick && !pressingUp && yVel < 0) yVel /= 2;
         if(jumpBufferActive) {
             ticksSinceJumpBufferActive++;
             if(ticksSinceJumpBufferActive > jumpBufferDuration) jumpBufferActive = false;
@@ -92,7 +101,11 @@ public class Player extends Actor
             ticksSinceJumpBufferActive = 0;
         }
         if((pressingUp || jumpBufferActive) && remainingJumps > 0 && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput) {
-            yVel -= jumpSpeed;
+            
+            if(jumpBufferActive && !pressingUp) {
+                yVel = -(3*jumpSpeed/4);
+            }
+            else yVel -= jumpSpeed;
             remainingJumps--;
             grounded = false;
             ticksSinceLastJump = 0;
@@ -116,7 +129,7 @@ public class Player extends Actor
         else xVel *= 1-(airFriction*multiplier);
     }
     private boolean isGrounded() {
-        if(ticksSinceLastJump < 5) return false;
+        //if(ticksSinceLastJump < 5) return false;
         return getY() >= new MyWorld().floorHeight;
     }
     private void applyGravity() {
