@@ -3,7 +3,6 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 /**--Planned Development--
  * Coyote time
  * Slide
- * Decrease gravity at jump apex
  */
 
 public class Player extends Actor
@@ -25,12 +24,12 @@ public class Player extends Actor
     
     private int xVel = 0;
     private int yVel = 0;
-    private int maxXSpeed = 15;
+    private int maxXSpeed = 25;
     
     private double groundAcc = 2;
     private double airAcc = 1;
     
-    private int jumpSpeed = 25;
+    private int jumpSpeed = 30;
     private int jumps = 1;
     private int remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
@@ -40,7 +39,19 @@ public class Player extends Actor
     private boolean jumpBufferActive = false;
     private int jumpBufferDuration = 7;
     private int ticksSinceJumpBufferActive = 0;
+    
+    private double worldGravity;
+    private double effectiveGravity;
+    private double jumpApexGravityMultiplier = 0.1;
+    private int jumpApexSpeedThreshold = 10;
+    private int worldFloorHeight;
 
+    public Player(double worldGravity, int worldFloorHeight) {
+        this.worldGravity = worldGravity;
+        this.effectiveGravity = worldGravity;
+        this.worldFloorHeight = worldFloorHeight;
+    }
+    
     public void act()
     {
         grounded = isGrounded();
@@ -122,7 +133,7 @@ public class Player extends Actor
         checkCollision();
     }
     private void checkCollision() {
-        if(grounded) setLocation(getX(), new MyWorld().floorHeight);
+        if(grounded) setLocation(getX(), worldFloorHeight);
     }
     private void applyFriction(double multiplier) {
         if(grounded) xVel *= 1-(groundFriction*multiplier);
@@ -130,9 +141,19 @@ public class Player extends Actor
     }
     private boolean isGrounded() {
         //if(ticksSinceLastJump < 5) return false;
-        return getY() >= new MyWorld().floorHeight;
+        return getY() >= worldFloorHeight;
     }
     private void applyGravity() {
-        if(!grounded) yVel += new MyWorld().gravityAcc;
+        if(!grounded) {
+            if(-yVel < jumpApexSpeedThreshold) effectiveGravity = worldGravity * jumpApexGravityMultiplier;
+            else effectiveGravity = worldGravity;
+            yVel += worldGravity;
+        }
+    }
+    public int getXVel() {
+        return xVel;
+    }
+    public int getYVel() {
+        return yVel;
     }
 }
