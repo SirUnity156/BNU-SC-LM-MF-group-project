@@ -7,6 +7,9 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 public class Player extends Actor
 {
+    private int xSize;
+    private int ySize;
+    
     private String leftKey = "left";
     private String rightKey = "right";
     private String upKey = "up";
@@ -46,10 +49,15 @@ public class Player extends Actor
     private int jumpApexSpeedThreshold = 10;
     private int worldFloorHeight;
 
-    public Player(double worldGravity, int worldFloorHeight) {
+    public Player(int xSize, int ySize, double worldGravity, int worldFloorHeight) {
+        this.xSize = xSize;
+        this.ySize = ySize;
         this.worldGravity = worldGravity;
         this.effectiveGravity = worldGravity;
         this.worldFloorHeight = worldFloorHeight;
+        GreenfootImage img = new GreenfootImage("images\\man01.png");
+        img.scale(xSize, ySize);
+        setImage(img);
     }
     
     public void act()
@@ -133,7 +141,7 @@ public class Player extends Actor
         checkCollision();
     }
     private void checkCollision() {
-        if(grounded) setLocation(getX(), worldFloorHeight);
+
     }
     private void applyFriction(double multiplier) {
         if(grounded) xVel *= 1-(groundFriction*multiplier);

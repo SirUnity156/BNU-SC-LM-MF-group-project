@@ -15,7 +15,10 @@ public class MyWorld extends World
     {    
         super(1600, 800, 1);
         Greenfoot.setSpeed(tickRate);
+        Player player = new Player(50, 100, gravityAcc, floorHeight);
+        
         addObject(new DevStatDisplay(), 20, 20);
-        addObject(new Player(gravityAcc, floorHeight), getWidth()/2, floorHeight);
+        addObject(player, getWidth()/2, floorHeight);
+        addObject(new Platform(this.getWidth(),20), 0, floorHeight + 20);
     }
 }

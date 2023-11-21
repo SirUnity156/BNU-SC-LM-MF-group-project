@@ -1,8 +1,8 @@
 #BlueJ class context
 comment0.target=Player
 comment0.text=--Planned\ Development--\r\n\ Coyote\ time\r\n\ Slide\r\n
-comment1.params=worldGravity\ worldFloorHeight
-comment1.target=Player(double,\ int)
+comment1.params=xSize\ ySize\ worldGravity\ worldFloorHeight
+comment1.target=Player(int,\ int,\ double,\ int)
 comment10.params=
 comment10.target=boolean\ isGrounded()
 comment11.params=
