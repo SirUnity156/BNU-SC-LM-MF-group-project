@@ -1,4 +1,5 @@
 import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import java.util.List;
 
 /**--Planned Development--
  * Coyote time
@@ -27,12 +28,12 @@ public class Player extends Actor
     
     private int xVel = 0;
     private int yVel = 0;
-    private int maxXSpeed = 25;
+    private int maxXSpeed = 15;
     
     private double groundAcc = 2;
     private double airAcc = 1;
     
-    private int jumpSpeed = 30;
+    private int jumpSpeed = 35;
     private int jumps = 1;
     private int remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
@@ -55,9 +56,7 @@ public class Player extends Actor
         this.worldGravity = worldGravity;
         this.effectiveGravity = worldGravity;
         this.worldFloorHeight = worldFloorHeight;
-        GreenfootImage img = new GreenfootImage("images\\man01.png");
-        img.scale(xSize, ySize);
-        setImage(img);
+        formatImage("images\\man01.png");
     }
     
     public void act()
@@ -67,6 +66,12 @@ public class Player extends Actor
         getInputs();
         applyInputs();
         applyMovement();
+        checkCollision();
+    }
+    private void formatImage(String path) {
+        GreenfootImage img = new GreenfootImage(path);
+        img.scale(xSize, ySize);
+        setImage(img);
     }
     private void getInputs() {
         pressUpLastTick = pressingUp;
@@ -111,11 +116,7 @@ public class Player extends Actor
             ticksSinceJumpBufferActive++;
             if(ticksSinceJumpBufferActive > jumpBufferDuration) jumpBufferActive = false;
         }
-        if(grounded) {
-            remainingJumps = jumps;
-            yVel = 0;
-        }
-        else if(pressingUp && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput && !jumpBufferActive) {
+        if(pressingUp && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput && !jumpBufferActive) {
             jumpBufferActive = true;
             ticksSinceJumpBufferActive = 0;
         }
@@ -124,12 +125,14 @@ public class Player extends Actor
             if(jumpBufferActive && !pressingUp) {
                 yVel = -(3*jumpSpeed/4);
             }
-            else yVel -= jumpSpeed;
-            remainingJumps--;
-            grounded = false;
-            ticksSinceLastJump = 0;
-            hasJumpedOnThisUpInput = true;
-            jumpBufferActive = false;
+            else {
+                yVel -= jumpSpeed;
+                remainingJumps--;
+                grounded = false;
+                ticksSinceLastJump = 0;
+                hasJumpedOnThisUpInput = true;
+                jumpBufferActive = false;
+            }
         }
         else {
             ticksSinceLastJump++;
@@ -138,10 +141,21 @@ public class Player extends Actor
     }
     private void applyMovement() {
         setLocation(getX() + xVel, getY() + yVel);
-        checkCollision();
     }
     private void checkCollision() {
+        List<Platform> intersects = getIntersectingObjects(Platform.class);
+        boolean outSideVertically, outSideHorizontally;
+        while(intersects.size() != 0) {
+            Platform platform = intersects.get(0);
 
+
+            int xDiff = this.getX() - platform.getX();
+            int yDiff = this.getY() - platform.getY();
+            
+            if(xDiff < yDiff) setLocation(this.getX() + xDiff + (this.xSize * xDiff/Math.abs(xDiff)), this.getY());
+            else setLocation(this.getX(), this.getY() + yDiff + (this.ySize * yDiff/Math.abs(yDiff)));
+            intersects = getIntersectingObjects(Platform.class);
+        }
     }
     private void applyFriction(double multiplier) {
         if(grounded) xVel *= 1-(groundFriction*multiplier);
