@@ -65,8 +65,9 @@ public class Player extends Actor
         
         getInputs();
         applyInputs();
-        applyMovement();
         checkCollision();
+        applyMovement();
+
     }
     private void formatImage(String path) {
         GreenfootImage img = new GreenfootImage(path);
@@ -149,11 +150,18 @@ public class Player extends Actor
             Platform platform = intersects.get(0);
 
 
-            int xDiff = this.getX() - platform.getX();
-            int yDiff = this.getY() - platform.getY();
+            int xDiff = (this.getX() + this.xVel) - platform.getX();
+            int yDiff = (this.getY() + this.yVel) - platform.getY();
             
-            if(xDiff < yDiff) setLocation(this.getX() + xDiff + (this.xSize * xDiff/Math.abs(xDiff)), this.getY());
-            else setLocation(this.getX(), this.getY() + yDiff + (this.ySize * yDiff/Math.abs(yDiff)));
+            if(xDiff < yDiff) {
+                setLocation(this.getX() + xDiff + (this.xSize * xDiff/Math.abs(xDiff)), this.getY());
+                this.xVel = 0;
+            }
+            else {
+                setLocation(this.getX(), this.getY() + yDiff + (this.ySize * yDiff/Math.abs(yDiff)));
+                this.yVel = 0;
+                grounded = true;
+            }
             intersects = getIntersectingObjects(Platform.class);
         }
     }
