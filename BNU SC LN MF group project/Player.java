@@ -1,5 +1,9 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 import java.util.List;
+
+// (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
+import greenfoot.GreenfootImage;
 
 /**--Planned Development--
  * Coyote time
@@ -46,26 +50,22 @@ public class Player extends Actor
     
     private double worldGravity;
     private double effectiveGravity;
-    private double jumpApexGravityMultiplier = 0.1;
+    private double jumpApexGravityMultiplier = 0.5;
     private int jumpApexSpeedThreshold = 10;
-    private int worldFloorHeight;
 
     public Player(int xSize, int ySize, double worldGravity, int worldFloorHeight) {
         this.xSize = xSize;
         this.ySize = ySize;
         this.worldGravity = worldGravity;
         this.effectiveGravity = worldGravity;
-        this.worldFloorHeight = worldFloorHeight;
         formatImage("images\\man01.png");
     }
     
     public void act()
     {
-        grounded = isGrounded();
-        
+        checkCollision();
         getInputs();
         applyInputs();
-        checkCollision();
         applyMovement();
 
     }
@@ -112,7 +112,7 @@ public class Player extends Actor
         if(pressingRight) xVel += airAcc;
     }
     private void applyJumpInput() {
-        if(pressUpLastTick && !pressingUp && yVel < 0) yVel /= 2;
+        if(pressUpLastTick && !pressingUp && yVel < 0) yVel = (3*yVel)/10;
         if(jumpBufferActive) {
             ticksSinceJumpBufferActive++;
             if(ticksSinceJumpBufferActive > jumpBufferDuration) jumpBufferActive = false;
@@ -145,7 +145,7 @@ public class Player extends Actor
     }
     private void checkCollision() {
         List<Platform> intersects = getIntersectingObjects(Platform.class);
-        boolean outSideVertically, outSideHorizontally;
+        
         while(intersects.size() != 0) {
             Platform platform = intersects.get(0);
 
@@ -154,13 +154,17 @@ public class Player extends Actor
             int yDiff = (this.getY() + this.yVel) - platform.getY();
             
             if(xDiff < yDiff) {
-                setLocation(this.getX() + xDiff + (this.xSize * xDiff/Math.abs(xDiff)), this.getY());
+                setLocation(platform.getX(), this.getY());
                 this.xVel = 0;
             }
             else {
-                setLocation(this.getX(), this.getY() + yDiff + (this.ySize * yDiff/Math.abs(yDiff)));
+                /*int offset;
+                if(xDiff < 0) offset = -(this.ySize+10);
+                else offset = platform.getYSize();*/
+                setLocation(this.getX(), platform.getY() - this.ySize);
                 this.yVel = 0;
                 grounded = true;
+                remainingJumps = jumps;
             }
             intersects = getIntersectingObjects(Platform.class);
         }
@@ -169,15 +173,11 @@ public class Player extends Actor
         if(grounded) xVel *= 1-(groundFriction*multiplier);
         else xVel *= 1-(airFriction*multiplier);
     }
-    private boolean isGrounded() {
-        //if(ticksSinceLastJump < 5) return false;
-        return getY() >= worldFloorHeight;
-    }
     private void applyGravity() {
         if(!grounded) {
             if(-yVel < jumpApexSpeedThreshold) effectiveGravity = worldGravity * jumpApexGravityMultiplier;
             else effectiveGravity = worldGravity;
-            yVel += worldGravity;
+            yVel += effectiveGravity;
         }
     }
     public int getXVel() {

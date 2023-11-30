@@ -19,6 +19,6 @@ public class MyWorld extends World
         
         addObject(new DevStatDisplay(), 20, 20);
         addObject(player, this.getWidth()/3, this.getHeight() * 1/2);
-        addObject(new Platform(this.getWidth(),20), 0, this.getHeight() * 2/3);
+        addObject(new Platform(this.getWidth(),30), 0, this.getHeight() * 2/3);
     }
 }
