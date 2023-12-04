@@ -1,4 +1,6 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+// (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.Actor;
+import greenfoot.GreenfootImage;
 
 public class Platform extends Actor
 {
@@ -11,7 +13,7 @@ public class Platform extends Actor
         img.scale(xSize, ySize);
         setImage(img);
     }
-    public int getxYSize() {return this.xSize;}
+    public int getXSize() {return this.xSize;}
 
     public int getYSize() {return this.ySize;}
 }

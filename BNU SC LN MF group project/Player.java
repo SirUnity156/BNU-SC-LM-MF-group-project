@@ -12,34 +12,29 @@ import greenfoot.GreenfootImage;
 
 public class Player extends Actor
 {
-    private int xSize;
-    private int ySize;
+    private int xSize, ySize;
     
     private String leftKey = "left";
     private String rightKey = "right";
     private String upKey = "up";
     
-    private boolean pressingUp = false;
-    private boolean pressingLeft = false;
-    private boolean pressingRight = false;
+    private boolean pressingUp = false, pressingLeft = false, pressingRight = false;
+    
     private boolean grounded = false;
     
     private boolean pressUpLastTick = false;
     
-    private double groundFriction = 0.2;
-    private double airFriction = 0.1;
+    private double groundFriction = 0.2, airFriction = 0.1;
     private double counterStrafingFrictionMultiplier = 5;
     
-    private int xVel = 0;
-    private int yVel = 0;
+    private int xVel = 0, yVel = 0;
     private int maxXSpeed = 15;
     
     private double groundAcc = 2;
     private double airAcc = 1;
     
     private int jumpSpeed = 35;
-    private int jumps = 1;
-    private int remainingJumps = jumps;
+    private int jumps = 1, remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
     private boolean hasJumpedOnThisUpInput = false;
@@ -48,16 +43,15 @@ public class Player extends Actor
     private int jumpBufferDuration = 7;
     private int ticksSinceJumpBufferActive = 0;
     
-    private double worldGravity;
-    private double effectiveGravity;
+    private double worldGravity, effectiveGravity;
     private double jumpApexGravityMultiplier = 0.5;
     private int jumpApexSpeedThreshold = 10;
 
     public Player(int xSize, int ySize, double worldGravity, int worldFloorHeight) {
         this.xSize = xSize;
         this.ySize = ySize;
-        this.worldGravity = worldGravity;
-        this.effectiveGravity = worldGravity;
+        this.worldGravity = this.effectiveGravity = worldGravity;
+
         formatImage("images\\man01.png");
     }
     
@@ -67,6 +61,12 @@ public class Player extends Actor
         getInputs();
         applyInputs();
         applyMovement();
+
+    }
+    private boolean isOverLappingPlatform(Platform platform) {
+        boolean xOverlap = ( getX() + this.xSize >= platform.getX() ) && ( getX() <= platform.getX() + platform.getXSize() );
+        boolean yOverlap = ( getY() + this.ySize >= platform.getY() ) && ( getY() <= platform.getY() + platform.getYSize() );
+        return xOverlap && yOverlap;
 
     }
     private void formatImage(String path) {
@@ -145,28 +145,28 @@ public class Player extends Actor
     }
     private void checkCollision() {
         List<Platform> intersects = getIntersectingObjects(Platform.class);
-        
-        while(intersects.size() != 0) {
-            Platform platform = intersects.get(0);
+        int xDiff, yDiff;
+        int collisionBufferSize = 10;
+        int offset;
 
+        for(Platform platform : intersects) {
+            platform = intersects.get(0);
 
-            int xDiff = (this.getX() + this.xVel) - platform.getX();
-            int yDiff = (this.getY() + this.yVel) - platform.getY();
-            
-            if(xDiff < yDiff) {
-                setLocation(platform.getX(), this.getY());
-                this.xVel = 0;
+            if(isOverLappingPlatform(platform)) {
+                while(true);
             }
-            else {
-                /*int offset;
-                if(xDiff < 0) offset = -(this.ySize+10);
-                else offset = platform.getYSize();*/
-                setLocation(this.getX(), platform.getY() - this.ySize);
-                this.yVel = 0;
-                grounded = true;
-                remainingJumps = jumps;
+
+            xDiff = this.getX() - platform.getX();
+            yDiff = this.getY() - platform.getY();
+
+            if(yDiff < xDiff) {
+                offset = yDiff;
+                offset += (yDiff>0) ? (ySize/2 + collisionBufferSize) : (-ySize/2 - collisionBufferSize);
+                yVel = 0;
+                setLocation(getX(), getY() + offset);
+                grounded = yDiff < 0;
             }
-            intersects = getIntersectingObjects(Platform.class);
+
         }
     }
     private void applyFriction(double multiplier) {

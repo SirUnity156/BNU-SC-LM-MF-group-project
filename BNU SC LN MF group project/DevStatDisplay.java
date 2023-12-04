@@ -1,9 +1,12 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+// (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.Actor;
+import greenfoot.Color;
+import greenfoot.GreenfootImage;
 
 /**
  * Write a description of class DevStatDisplay here.
- * 
- * @author (your name) 
+ *
+ * @author (your name)
  * @version (a version number or a date)
  */
 public class DevStatDisplay extends Actor
