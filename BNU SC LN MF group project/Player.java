@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
@@ -63,11 +64,14 @@ public class Player extends Actor
         applyMovement();
 
     }
-    private boolean isOverLappingPlatform(Platform platform) {
-        boolean xOverlap = ( getX() + this.xSize >= platform.getX() ) && ( getX() <= platform.getX() + platform.getXSize() );
-        boolean yOverlap = ( getY() + this.ySize >= platform.getY() ) && ( getY() <= platform.getY() + platform.getYSize() );
-        return xOverlap && yOverlap;
-
+    private boolean isOverlappingPlatform(Platform platform) {
+        return isXOverlappingPlatform(platform) && isYOverlappingPlatform(platform);
+    }
+    private boolean isXOverlappingPlatform(Platform platform) {
+        return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 && getX() <= platform.getX() + platform.getXSize();
+    }
+    private boolean isYOverlappingPlatform(Platform platform) {
+        return getY() + this.ySize/2 >= platform.getY() - platform.getYSize()/2 && getY() <= platform.getY() + platform.getYSize();
     }
     private void formatImage(String path) {
         GreenfootImage img = new GreenfootImage(path);
@@ -85,7 +89,6 @@ public class Player extends Actor
         applyHorizontalInput();
         applyJumpInput();
         applyGravity();
-
     }
     private void applyHorizontalInput() {
         if(pressingLeft == pressingRight) {
@@ -144,30 +147,49 @@ public class Player extends Actor
         setLocation(getX() + xVel, getY() + yVel);
     }
     private void checkCollision() {
+        //FIXME not falling off right side of platform is caused by faulty checkIfGrounded
+        //FIXME phasing through right half of floor is caused by faulty
         List<Platform> intersects = getIntersectingObjects(Platform.class);
         int xDiff, yDiff;
-        int collisionBufferSize = 10;
+        int collisionBufferSize = 5;
         int offset;
+        
+
 
         for(Platform platform : intersects) {
-            platform = intersects.get(0);
-
-            if(isOverLappingPlatform(platform)) {
-                while(true);
-            }
-
             xDiff = this.getX() - platform.getX();
             yDiff = this.getY() - platform.getY();
 
-            if(yDiff < xDiff) {
-                offset = yDiff;
-                offset += (yDiff>0) ? (ySize/2 + collisionBufferSize) : (-ySize/2 - collisionBufferSize);
+            if(yDiff >= xDiff) {
                 yVel = 0;
-                setLocation(getX(), getY() + offset);
-                grounded = yDiff < 0;
+                offset = (yDiff < 0) ? (-this.ySize - collisionBufferSize) : (platform.getYSize() + collisionBufferSize);
+                setLocation(this.getX(), platform.getY() + offset);
             }
-
+            /*else {
+                xVel = 0;
+                offset = (xDiff < 0) ? (-this.xSize - collisionBufferSize) : (platform.getXSize() + collisionBufferSize);
+                setLocation(platform.getX() + offset, this.getY());
+            }*/
         }
+        checkIfGrounded();
+        if(grounded) remainingJumps = jumps;
+    }
+    private void checkIfGrounded() {
+        int groundedDistance = 10;
+        List<Platform> platforms = getWorld().getObjects(Platform.class);
+        boolean isGrounded = false;
+        for (Platform platform : platforms) {
+            isGrounded |= isXOverlappingPlatform(platform) && (platform.getY() > this.getY()) && (platform.getY() - this.getY() <= groundedDistance + platform.getYSize());
+        }
+        this.grounded = isGrounded;
+    }
+    private List<Platform> getOverlappingPlatforms() {
+        List<Platform> platforms = getWorld().getObjects(Platform.class);
+        List<Platform> overlaps = new ArrayList<>(0);
+        for (Platform platform : platforms) {
+            if(isOverlappingPlatform(platform)) overlaps.add(platform);
+        }
+        return overlaps;
     }
     private void applyFriction(double multiplier) {
         if(grounded) xVel *= 1-(groundFriction*multiplier);

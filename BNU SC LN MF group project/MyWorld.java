@@ -20,9 +20,10 @@ public class MyWorld extends World
         Player player = new Player(20, 35, gravityAcc, floorHeight);
         
         addObject(new DevStatDisplay(), 20, 20);
-        addObject(player, this.getWidth()/2, 200);
+        addObject(player, this.getWidth()/2 -200, 200);
         
         addObject(new Platform(this.getWidth()/2,50), this.getWidth()/2, 100);
         addObject(new Platform(this.getWidth()/2,50), this.getWidth()/2, 300);
+        //addObject(new Platform(50 ,this.getWidth()/2), 400, 0);
     }
 }
