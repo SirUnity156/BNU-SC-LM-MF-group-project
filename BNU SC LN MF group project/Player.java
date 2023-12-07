@@ -150,7 +150,8 @@ public class Player extends Actor
 
         List<Platform> intersects = getIntersectingObjects(Platform.class);
         int xDiff, yDiff;
-        int collisionBufferSize = 5;
+        int collisionBufferXSize = 9;
+        int collisionBufferYSize = 5;
         int offset;
         
 
@@ -161,14 +162,14 @@ public class Player extends Actor
 
             if(yDiff >= xDiff) {
                 yVel = 0;
-                offset = (yDiff < 0) ? (-this.ySize - collisionBufferSize) : (platform.getYSize() + collisionBufferSize);
+                offset = (yDiff < 0) ? (-this.ySize - collisionBufferYSize) : (platform.getYSize() + collisionBufferYSize);
                 setLocation(this.getX(), platform.getY() + offset);
             }
-            /*else {
+            else {
                 xVel = 0;
-                offset = (xDiff < 0) ? (-this.xSize - collisionBufferSize) : (platform.getXSize()/2 + collisionBufferSize);
+                offset = (xDiff < 0) ? (-platform.getXSize()/2 - collisionBufferXSize) : (platform.getXSize()/2 + collisionBufferXSize);
                 setLocation(platform.getX() + offset, this.getY());
-            }*/
+            }
         }
         checkIfGrounded();
         if(grounded) remainingJumps = jumps;
