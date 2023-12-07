@@ -68,7 +68,7 @@ public class Player extends Actor
         return isXOverlappingPlatform(platform) && isYOverlappingPlatform(platform);
     }
     private boolean isXOverlappingPlatform(Platform platform) {
-        return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 && getX() <= platform.getX() + platform.getXSize();
+        return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 && getX() - this.xSize/2 <= platform.getX() + platform.getXSize()/2;
     }
     private boolean isYOverlappingPlatform(Platform platform) {
         return getY() + this.ySize/2 >= platform.getY() - platform.getYSize()/2 && getY() <= platform.getY() + platform.getYSize();
@@ -147,8 +147,7 @@ public class Player extends Actor
         setLocation(getX() + xVel, getY() + yVel);
     }
     private void checkCollision() {
-        //FIXME not falling off right side of platform is caused by faulty checkIfGrounded
-        //FIXME phasing through right half of floor is caused by faulty
+
         List<Platform> intersects = getIntersectingObjects(Platform.class);
         int xDiff, yDiff;
         int collisionBufferSize = 5;
@@ -157,8 +156,8 @@ public class Player extends Actor
 
 
         for(Platform platform : intersects) {
-            xDiff = this.getX() - platform.getX();
-            yDiff = this.getY() - platform.getY();
+            xDiff = this.getX() + this.xSize/2 - platform.getX() - platform.getXSize()/2;
+            yDiff = this.getY() + this.ySize - platform.getY() - platform.getYSize();
 
             if(yDiff >= xDiff) {
                 yVel = 0;
@@ -167,7 +166,7 @@ public class Player extends Actor
             }
             /*else {
                 xVel = 0;
-                offset = (xDiff < 0) ? (-this.xSize - collisionBufferSize) : (platform.getXSize() + collisionBufferSize);
+                offset = (xDiff < 0) ? (-this.xSize - collisionBufferSize) : (platform.getXSize()/2 + collisionBufferSize);
                 setLocation(platform.getX() + offset, this.getY());
             }*/
         }
@@ -177,11 +176,14 @@ public class Player extends Actor
     private void checkIfGrounded() {
         int groundedDistance = 10;
         List<Platform> platforms = getWorld().getObjects(Platform.class);
-        boolean isGrounded = false;
+        
         for (Platform platform : platforms) {
-            isGrounded |= isXOverlappingPlatform(platform) && (platform.getY() > this.getY()) && (platform.getY() - this.getY() <= groundedDistance + platform.getYSize());
+            if(isXOverlappingPlatform(platform) && (platform.getY() > this.getY()) && (platform.getY() - this.getY() <= groundedDistance + platform.getYSize())) {
+                this.grounded = true;
+                return;
+            }
         }
-        this.grounded = isGrounded;
+        this.grounded = false;
     }
     private List<Platform> getOverlappingPlatforms() {
         List<Platform> platforms = getWorld().getObjects(Platform.class);

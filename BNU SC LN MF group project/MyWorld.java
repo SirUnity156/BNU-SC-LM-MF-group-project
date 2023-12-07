@@ -25,5 +25,6 @@ public class MyWorld extends World
         addObject(new Platform(this.getWidth()/2,50), this.getWidth()/2, 100);
         addObject(new Platform(this.getWidth()/2,50), this.getWidth()/2, 300);
         //addObject(new Platform(50 ,this.getWidth()/2), 400, 0);
+        //addObject(new Platform(50 ,this.getWidth()/2), 1000, 0);
     }
 }
