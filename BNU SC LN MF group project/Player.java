@@ -14,7 +14,7 @@ import greenfoot.GreenfootImage;
 public class Player extends Actor
 {
     private int xSize, ySize;
-    
+    private int hi;
     private String leftKey = "left";
     private String rightKey = "right";
     private String upKey = "up";
@@ -35,7 +35,7 @@ public class Player extends Actor
     private double airAcc = 1;
     
     private int jumpSpeed = 35;
-    private int jumps = 1, remainingJumps = jumps;
+    private int jumps = 2, remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
     private boolean hasJumpedOnThisUpInput = false;
