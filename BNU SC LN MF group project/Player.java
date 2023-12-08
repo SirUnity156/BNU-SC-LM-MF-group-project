@@ -1,4 +1,10 @@
-import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import java.util.ArrayList;
+import java.util.List;
+
+// (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
+import greenfoot.GreenfootImage;
 
 /**--Planned Development--
  * Coyote time
@@ -7,31 +13,29 @@ import greenfoot.*;  // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 
 public class Player extends Actor
 {
+    private int xSize, ySize;
+    private int hi;
     private String leftKey = "left";
     private String rightKey = "right";
     private String upKey = "up";
     
-    private boolean pressingUp = false;
-    private boolean pressingLeft = false;
-    private boolean pressingRight = false;
+    private boolean pressingUp = false, pressingLeft = false, pressingRight = false;
+    
     private boolean grounded = false;
     
     private boolean pressUpLastTick = false;
     
-    private double groundFriction = 0.2;
-    private double airFriction = 0.1;
+    private double groundFriction = 0.2, airFriction = 0.1;
     private double counterStrafingFrictionMultiplier = 5;
     
-    private int xVel = 0;
-    private int yVel = 0;
-    private int maxXSpeed = 25;
+    private int xVel = 0, yVel = 0;
+    private int maxXSpeed = 15;
     
     private double groundAcc = 2;
     private double airAcc = 1;
     
-    private int jumpSpeed = 30;
-    private int jumps = 1;
-    private int remainingJumps = jumps;
+    private int jumpSpeed = 35;
+    private int jumps = 2, remainingJumps = jumps;
     private int jumpCooldownTicks = 5;
     private int ticksSinceLastJump = 0;
     private boolean hasJumpedOnThisUpInput = false;
@@ -40,25 +44,39 @@ public class Player extends Actor
     private int jumpBufferDuration = 7;
     private int ticksSinceJumpBufferActive = 0;
     
-    private double worldGravity;
-    private double effectiveGravity;
-    private double jumpApexGravityMultiplier = 0.1;
+    private double worldGravity, effectiveGravity;
+    private double jumpApexGravityMultiplier = 0.5;
     private int jumpApexSpeedThreshold = 10;
-    private int worldFloorHeight;
 
-    public Player(double worldGravity, int worldFloorHeight) {
-        this.worldGravity = worldGravity;
-        this.effectiveGravity = worldGravity;
-        this.worldFloorHeight = worldFloorHeight;
+    public Player(int xSize, int ySize, double worldGravity, int worldFloorHeight) {
+        this.xSize = xSize;
+        this.ySize = ySize;
+        this.worldGravity = this.effectiveGravity = worldGravity;
+
+        formatImage("images\\man01.png");
     }
     
     public void act()
     {
-        grounded = isGrounded();
-        
+        checkCollision();
         getInputs();
         applyInputs();
         applyMovement();
+
+    }
+    private boolean isOverlappingPlatform(Platform platform) {
+        return isXOverlappingPlatform(platform) && isYOverlappingPlatform(platform);
+    }
+    private boolean isXOverlappingPlatform(Platform platform) {
+        return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 && getX() - this.xSize/2 <= platform.getX() + platform.getXSize()/2;
+    }
+    private boolean isYOverlappingPlatform(Platform platform) {
+        return getY() + this.ySize/2 >= platform.getY() - platform.getYSize()/2 && getY() <= platform.getY() + platform.getYSize();
+    }
+    private void formatImage(String path) {
+        GreenfootImage img = new GreenfootImage(path);
+        img.scale(xSize, ySize);
+        setImage(img);
     }
     private void getInputs() {
         pressUpLastTick = pressingUp;
@@ -71,7 +89,6 @@ public class Player extends Actor
         applyHorizontalInput();
         applyJumpInput();
         applyGravity();
-
     }
     private void applyHorizontalInput() {
         if(pressingLeft == pressingRight) {
@@ -98,16 +115,12 @@ public class Player extends Actor
         if(pressingRight) xVel += airAcc;
     }
     private void applyJumpInput() {
-        if(pressUpLastTick && !pressingUp && yVel < 0) yVel /= 2;
+        if(pressUpLastTick && !pressingUp && yVel < 0) yVel = (3*yVel)/10;
         if(jumpBufferActive) {
             ticksSinceJumpBufferActive++;
             if(ticksSinceJumpBufferActive > jumpBufferDuration) jumpBufferActive = false;
         }
-        if(grounded) {
-            remainingJumps = jumps;
-            yVel = 0;
-        }
-        else if(pressingUp && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput && !jumpBufferActive) {
+        if(pressingUp && ticksSinceLastJump > jumpCooldownTicks && !hasJumpedOnThisUpInput && !jumpBufferActive) {
             jumpBufferActive = true;
             ticksSinceJumpBufferActive = 0;
         }
@@ -116,12 +129,14 @@ public class Player extends Actor
             if(jumpBufferActive && !pressingUp) {
                 yVel = -(3*jumpSpeed/4);
             }
-            else yVel -= jumpSpeed;
-            remainingJumps--;
-            grounded = false;
-            ticksSinceLastJump = 0;
-            hasJumpedOnThisUpInput = true;
-            jumpBufferActive = false;
+            else {
+                yVel -= jumpSpeed;
+                remainingJumps--;
+                grounded = false;
+                ticksSinceLastJump = 0;
+                hasJumpedOnThisUpInput = true;
+                jumpBufferActive = false;
+            }
         }
         else {
             ticksSinceLastJump++;
@@ -130,24 +145,64 @@ public class Player extends Actor
     }
     private void applyMovement() {
         setLocation(getX() + xVel, getY() + yVel);
-        checkCollision();
     }
     private void checkCollision() {
-        if(grounded) setLocation(getX(), worldFloorHeight);
+
+        List<Platform> intersects = getIntersectingObjects(Platform.class);
+        int xDiff, yDiff;
+        int collisionBufferXSize = 9;
+        int collisionBufferYSize = 5;
+        int offset;
+        
+
+
+        for(Platform platform : intersects) {
+            xDiff = this.getX() + this.xSize/2 - platform.getX() - platform.getXSize()/2;
+            yDiff = this.getY() + this.ySize - platform.getY() - platform.getYSize();
+
+            if(yDiff >= xDiff) {
+                yVel = 0;
+                offset = (yDiff < 0) ? (-this.ySize - collisionBufferYSize) : (platform.getYSize() + collisionBufferYSize);
+                setLocation(this.getX(), platform.getY() + offset);
+            }
+            else {
+                xVel = 0;
+                offset = (xDiff < 0) ? (-platform.getXSize()/2 - collisionBufferXSize) : (platform.getXSize()/2 + collisionBufferXSize);
+                setLocation(platform.getX() + offset, this.getY());
+            }
+        }
+        checkIfGrounded();
+        if(grounded) remainingJumps = jumps;
+    }
+    private void checkIfGrounded() {
+        int groundedDistance = 10;
+        List<Platform> platforms = getWorld().getObjects(Platform.class);
+        
+        for (Platform platform : platforms) {
+            if(isXOverlappingPlatform(platform) && (platform.getY() > this.getY()) && (platform.getY() - this.getY() <= groundedDistance + platform.getYSize())) {
+                this.grounded = true;
+                return;
+            }
+        }
+        this.grounded = false;
+    }
+    private List<Platform> getOverlappingPlatforms() {
+        List<Platform> platforms = getWorld().getObjects(Platform.class);
+        List<Platform> overlaps = new ArrayList<>(0);
+        for (Platform platform : platforms) {
+            if(isOverlappingPlatform(platform)) overlaps.add(platform);
+        }
+        return overlaps;
     }
     private void applyFriction(double multiplier) {
         if(grounded) xVel *= 1-(groundFriction*multiplier);
         else xVel *= 1-(airFriction*multiplier);
     }
-    private boolean isGrounded() {
-        //if(ticksSinceLastJump < 5) return false;
-        return getY() >= worldFloorHeight;
-    }
     private void applyGravity() {
         if(!grounded) {
             if(-yVel < jumpApexSpeedThreshold) effectiveGravity = worldGravity * jumpApexGravityMultiplier;
             else effectiveGravity = worldGravity;
-            yVel += worldGravity;
+            yVel += effectiveGravity;
         }
     }
     public int getXVel() {
