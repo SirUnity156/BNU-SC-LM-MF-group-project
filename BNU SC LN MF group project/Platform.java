@@ -9,7 +9,7 @@ public class Platform extends Actor
     public Platform(int xSize, int ySize) {
         this.xSize = xSize;
         this.ySize = ySize;
-        GreenfootImage img = new GreenfootImage("images\\Wall.jpg");
+        GreenfootImage img = new GreenfootImage("Wall.jpg");
         img.scale(xSize, ySize);
         setImage(img);
     }
