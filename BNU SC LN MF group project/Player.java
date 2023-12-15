@@ -261,9 +261,26 @@ public class Player extends Actor
         this.grounded = false;
     }
 
-    private void checkHazardCollision() {
+        //Max
 
+    private void checkHazardCollision() {
+        Class<EnvironmentalHazard>
+    Actor; Player = getIntersectingObjects(EnvironmentalHazard.class);
+    
+    this.setHealth(this.getHealth() - (health--));
+   
+    
+
+}
+
+    private void loseHealth() {
+        health--;
     }
+
+    public int getDamage() {return this.damage;}
+ 
+
+    //Max end
 
     /**Decreases player velocity*/
     private void applyFriction(double multiplier) {
