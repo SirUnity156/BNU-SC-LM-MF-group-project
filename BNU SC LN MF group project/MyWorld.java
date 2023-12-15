@@ -19,12 +19,13 @@ public class MyWorld extends World
         Greenfoot.setSpeed(tickRate);
         Player player = new Player(20, 35, gravityAcc, floorHeight);
         
-        addObject(new DevStatDisplay(), 20, 20);
-        addObject(player, this.getWidth()/2 -200, 200);
+        addObject(new DevStatDisplay(), 30, 20);
+        addObject(player, this.getWidth()/2 -200, 400);
         
-        addObject(new Platform(this.getWidth()/2,50), this.getWidth()/2, 0);
-        addObject(new Platform(this.getWidth()/2,50), this.getWidth()/2, 500);
-        addObject(new Platform(50 ,this.getWidth()/2), 400, 100);
-        addObject(new Platform(50 ,this.getWidth()/2), 1000, 100);
+        addObject(new Platform(this.getWidth()/2, 50), this.getWidth()/2, 500);
+        addObject(new Platform(2*this.getWidth()/3, 50), this.getWidth()/2, 500);
+        //addObject(new Platform(50 ,this.getWidth()/3), 400, 0);
+        //addObject(new Platform(50 , 200), 1000, 300);
+
     }
 }
