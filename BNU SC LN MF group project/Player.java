@@ -20,7 +20,8 @@ public class Player extends Actor
     private boolean pressingUp = false, pressingLeft = false, pressingRight = false; //Tracks the buttons being pressed
     
     private boolean grounded = false; //Tracks if player is touching the floor
-    
+    private boolean isTouchingLeftWall = false, isTouchingRightWall = isTouchingLeftWall;
+
     private boolean pressUpLastTick = false; //Tracks if up was pressed on the previous tick
     
     private double groundFriction = 0.2, airFriction = 0.1; //Values for friction on ground and in air
@@ -81,7 +82,8 @@ public class Player extends Actor
 
     /**Detects if the y coords of the user overlaps withe the y coords of the platform*/
     private boolean isYOverlappingPlatform(Platform platform) {
-        return getY() + this.ySize/2 >= platform.getY() - platform.getYSize()/2 && getY() <= platform.getY() + platform.getYSize();
+        int yOverlapBuffer = 5;
+        return getY() + this.ySize/2 - yOverlapBuffer >= platform.getY() - platform.getYSize()/2 && getY() <= platform.getY() + platform.getYSize() + yOverlapBuffer;
     }
 
     private List<Platform> getOverlappingPlatforms() {
@@ -122,6 +124,8 @@ public class Player extends Actor
      * If the opposite direction is pressed to the current movement, friction is increased
     */
     private void applyHorizontalInput() {
+        checkIfTouchingLeftWall();
+
         //Checks if neither/both are pressed
         if(pressingLeft == pressingRight) {
             applyFriction(1);
@@ -140,9 +144,11 @@ public class Player extends Actor
             return;
         }
         
+        
+
         //Applies acceleration
         if(grounded) {
-            if(pressingLeft) xVel -= groundAcc;
+            if(pressingLeft) xVel = (int) ((this.pressingLeft && this.isTouchingLeftWall) ? (xVel - groundAcc) : (0));
             if(pressingRight) xVel += groundAcc;
             return;
         }
@@ -211,7 +217,7 @@ public class Player extends Actor
         int xDiff, yDiff; //To store differences in player-platform locations
 
         //Buffer between platform and the player
-        int collisionBufferXSize = 0;
+        int collisionBufferXSize = 1;
         int collisionBufferYSize = 1;
 
         //Distance for the player to be offset from the platform
@@ -260,6 +266,20 @@ public class Player extends Actor
         }
         this.grounded = false;
     }
+
+    private void checkIfTouchingLeftWall() {
+        int leftTouchDistance = 5; //Distance that platforms must be within to ground the player
+        List<Platform> platforms = getWorld().getObjects(Platform.class); //Gets all platforms
+        
+        for (Platform platform : platforms) {
+            if(isYOverlappingPlatform(platform) && (platform.getX() > this.getX()) && (platform.getX() - this.getX() <= leftTouchDistance + platform.getXSize())) {
+                this.isTouchingLeftWall = true;
+                return;
+            }
+        }
+        this.isTouchingLeftWall = false;
+    }
+
 
     private void checkHazardCollision() {
 
