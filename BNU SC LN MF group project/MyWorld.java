@@ -18,8 +18,10 @@ public class MyWorld extends World
         super(1600, 800, 1);
         Greenfoot.setSpeed(tickRate);
         Player player = new Player(20, 35, gravityAcc, floorHeight);
+
+        String playerYVel = Integer.toString((int)player.getYVel());
         
-        addObject(new DevStatDisplay(), 30, 20);
+        addObject(new DevStatDisplay(playerYVel), 30, 20);
         addObject(player, this.getWidth()/2 -200, 400);
         
         addObject(new Platform(this.getWidth()/2, 100), this.getWidth()/2, 500);
@@ -28,6 +30,8 @@ public class MyWorld extends World
         addObject(new Platform(50 , 200), 1000, 400);
         
         addObject(new Platform(400, 50), 500, 300);
+        
+        addObject(new Enemy(20, 40, 1, 300, 500, 1), 300, 430);
 
     }
 }
