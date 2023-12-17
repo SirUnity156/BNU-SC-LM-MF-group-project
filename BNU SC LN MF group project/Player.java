@@ -27,13 +27,13 @@ public class Player extends Actor
     private double groundFriction = 0.2, airFriction = 0.1; //Values for friction on ground and in air
     private double counterStrafingFrictionMultiplier = 5; //Friction is multiplied by this value when pressing direction opposite to current movement direction
     
-    private int xVel = 0, yVel = 0; //Velocities
-    private int maxXSpeed = 10; //Maximum allowed x velocity
+    private double xVel = 0, yVel = 0; //Velocities
+    private double maxXSpeed = 6; //Maximum allowed x velocity
     
-    private double groundAcc = 2; //Acceleration on ground
-    private double airAcc = 1; //Acceleration in air
+    private double groundAcc = 0.8; //Acceleration on ground
+    private double airAcc = 0.6; //Acceleration in air
     
-    private int jumpSpeed = 25; //Speed increase when jumping
+    private int jumpSpeed = 17; //Speed increase when jumping
     private int jumps = 2, remainingJumps = jumps; //Sets number of jumps allowed between floor touches
     private int jumpCooldownTicks = 5; //Length of time after jumping that the player may not jump during
     private int ticksSinceLastJump = 0; //Counts ticks since the last jump
@@ -45,7 +45,7 @@ public class Player extends Actor
     
     private double worldGravity, effectiveGravity; //Stores the world gravity acceleration
     private double jumpApexGravityMultiplier = 0.5; //Gravity will be multiplied by this valuewhile at the jump apex
-    private int jumpApexSpeedThreshold = 10; //A player that moves below this vertical speed will be considered to be at apex
+    private int jumpApexSpeedThreshold = 5; //A player that moves below this vertical speed will be considered to be at apex
 
     private int health = 1;
 
@@ -71,26 +71,30 @@ public class Player extends Actor
     /**Detects if the user is overlapping another platform
      * Used instead of isIntersecting due to minor changes in where values are calculated from
     */
-    private boolean isOverlappingPlatform(Platform platform) {
-        return isXOverlappingPlatform(platform) && isYOverlappingPlatform(platform);
+    private boolean isOverlappingPlatform(Platform platform, int buffer) {
+        return isXOverlappingPlatform(platform, buffer) && isYOverlappingPlatform(platform, buffer);
     }
 
     /**Detects if the x coords of the user overlaps withe the x coords of the platform*/
-    private boolean isXOverlappingPlatform(Platform platform) {
-        return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 && getX() - this.xSize/2 <= platform.getX() + platform.getXSize()/2;
+    private boolean isXOverlappingPlatform(Platform platform, int buffer) {
+        //return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 && getX() - this.xSize/2 <= platform.getX() + platform.getXSize()/2;
+        boolean leftOfLeftSide = this.getX() + this.xSize/2 + buffer > platform.getX() - platform.getXSize()/2;
+        boolean rightOfRightSide = this.getX() - this.xSize/2 - buffer < platform.getX() + platform.getXSize()/2;
+        return leftOfLeftSide && rightOfRightSide;
     }
 
     /**Detects if the y coords of the user overlaps withe the y coords of the platform*/
-    private boolean isYOverlappingPlatform(Platform platform) {
-        int yOverlapBuffer = 5;
-        return getY() + this.ySize/2 - yOverlapBuffer >= platform.getY() - platform.getYSize()/2 && getY() <= platform.getY() + platform.getYSize() + yOverlapBuffer;
+    private boolean isYOverlappingPlatform(Platform platform, int buffer) {
+        boolean belowTop = this.getY() + this.ySize/2 + buffer > platform.getY() - platform.getYSize()/2;
+        boolean aboveBottom = this.getY() - this.ySize/2 - buffer < platform.getY() + platform.getYSize()/2;
+        return belowTop && aboveBottom;
     }
 
-    private List<Platform> getOverlappingPlatforms() {
+    private List<Platform> getOverlappingPlatforms(int buffer) {
         List<Platform> platforms = getWorld().getObjects(Platform.class);
         List<Platform> overlaps = new ArrayList<>(0);
         for(Platform platform : platforms) {
-            if(isOverlappingPlatform(platform)) overlaps.add(platform);
+            if(isOverlappingPlatform(platform, buffer)) overlaps.add(platform);
         }
         return overlaps;
     }
@@ -124,7 +128,8 @@ public class Player extends Actor
      * If the opposite direction is pressed to the current movement, friction is increased
     */
     private void applyHorizontalInput() {
-        checkIfTouchingLeftWall();
+        //checkIfTouchingLeftWall();
+        //checkIfTouchingRightWall();
 
         //Checks if neither/both are pressed
         if(pressingLeft == pressingRight) {
@@ -132,11 +137,12 @@ public class Player extends Actor
             return;
         }
 
+        //FIXME this prevents player moving in the air
         //Checks if pressing direction opposite to current movement
-        if((pressingLeft && xVel > 0) || (pressingRight && xVel < 0)){
+        /*if((pressingLeft && xVel > 0) || (pressingRight && xVel < 0)){
             applyFriction(counterStrafingFrictionMultiplier);
             return;
-        }
+        }*/
         
         //Checks if speed exceeds maximum speed
         if(Math.abs(xVel) >= maxXSpeed) {
@@ -144,22 +150,21 @@ public class Player extends Actor
             return;
         }
         
-        
-
         //Applies acceleration
+        //FIXME when the wall touching tests are used, player cannot strafe in the air
         if(grounded) {
-            if(pressingLeft) xVel = (int) ((this.pressingLeft && this.isTouchingLeftWall) ? (xVel - groundAcc) : (0));
-            if(pressingRight) xVel += groundAcc;
+            if(pressingLeft) xVel = (!this.isTouchingLeftWall) ? (xVel - groundAcc) : (0);
+            if(pressingRight) xVel = (!this.isTouchingRightWall) ? (xVel + groundAcc) : (0);
             return;
         }
-        if(pressingLeft) xVel -= airAcc;
-        if(pressingRight) xVel += airAcc;
+        if(pressingLeft) xVel = (!this.isTouchingLeftWall) ? (xVel - airAcc) : (0);
+        if(pressingRight) xVel = (!this.isTouchingRightWall) ? (xVel + airAcc) : (0);
     }
 
     /**Applies jump velocity if certain conditions are met*/
     private void applyJumpInput() {
         //If the user has let go of the jump button, the yVel is reduced
-        if(pressUpLastTick && !pressingUp && yVel < 0) yVel = (3*yVel)/10;
+        if(pressUpLastTick && !pressingUp && yVel < 0) yVel *= 0.3;;
 
         //Updates jump buffer and checks if it has expired
         if(jumpBufferActive) {
@@ -200,7 +205,7 @@ public class Player extends Actor
 
     /**Updates player position*/
     private void applyMovement() {
-        setLocation(getX() + xVel, getY() + yVel);
+        setLocation(getX() + (int)Math.round(xVel), getY() + (int)Math.round(yVel));
     }
 
     private void checkCollision() {
@@ -211,7 +216,7 @@ public class Player extends Actor
     /**Checks if the player intersects with a platform and moves them outside the platform*/
     private void checkPlatformCollision() {
         Player nextFramePlayer = this;
-        nextFramePlayer.setLocation(this.getX() + this.xVel, this.getY() + this.yVel);
+        nextFramePlayer.setLocation(getX() + (int)Math.round(xVel)  , getY() + (int)Math.round(yVel));
 
         List<Platform> intersects = getIntersectingObjects(Platform.class); //List of currently intersecting platforms
         int xDiff, yDiff; //To store differences in player-platform locations
@@ -228,21 +233,33 @@ public class Player extends Actor
         //Loops through intersecting platforms and moves the player out of them
         while(intersects.size() > 0) {
             platform = intersects.get(0);
-            //Calculates differences in player-platform locations
-            xDiff = this.getX() + this.xSize/2 - platform.getX() - platform.getXSize()/2;
-            yDiff = this.getY() + this.ySize/2 - platform.getY() - platform.getYSize()/2;
+            int distanceToTop = (nextFramePlayer.getY() + nextFramePlayer.ySize/2) - (platform.getY() - platform.getYSize()/2);
+            int distanceToBottom = (nextFramePlayer.getY() - nextFramePlayer.ySize/2) - (platform.getY() + platform.getYSize()/2);
+            boolean isAbove = Math.abs(distanceToTop) < Math.abs(distanceToBottom);
+
+            yDiff = (isAbove) ? (distanceToTop) : (distanceToBottom);
+
+            int distanceToLeft = (nextFramePlayer.getX() + nextFramePlayer.xSize/2) - (platform.getX() - platform.getXSize()/2);
+            int distanceToRight = (nextFramePlayer.getX() - nextFramePlayer.xSize/2) - (platform.getX() + platform.getXSize()/2);
+            boolean isLeft = Math.abs(distanceToLeft) < Math.abs(distanceToRight);
+            
+            xDiff = (isLeft) ? (distanceToLeft) : (distanceToRight);
+
+            /*//Calculates differences in player-platform locations
+            xDiff = (nextFramePlayer.getX() + nextFramePlayer.xSize/2) - (platform.getX() + platform.getXSize()/2);
+            yDiff = (nextFramePlayer.getY() + nextFramePlayer.ySize/2) - (platform.getY() + platform.getYSize()/2);*/
 
             //Checks to see if a vertical side is closer
-            if(yDiff >= xDiff) {
+            if(Math.abs(yDiff) <= Math.abs(xDiff)) {
                 yVel = 0; //Player's y velocity is halted
-                offset = (yDiff < 0) ? (-platform.getYSize()/2 - this.ySize/2 - collisionBufferYSize) : (platform.getYSize()/2 + this.ySize/2 + collisionBufferYSize); //Offsets the player either above or below the platform depending on which is closer
+                offset = (yDiff >= 0) ? (-platform.getYSize()/2 - nextFramePlayer.ySize/2 - collisionBufferYSize) : (platform.getYSize()/2 + nextFramePlayer.ySize/2 + collisionBufferYSize); //Offsets the player either above or below the platform depending on which is closer
                 setLocation(this.getX(), platform.getY() + offset);
             }
             
             //Horizontal side is closer
             else {
                 xVel = 0; //Player's x velocity is halted
-                offset = (xDiff < 0) ? (-platform.getXSize()/2 - this.xSize/2 - collisionBufferXSize) : (platform.getXSize()/2 + this.xSize/2 + collisionBufferXSize); //Offsets the player either left or right the platform depending on which is closer
+                offset = (xDiff > 0) ? (-platform.getXSize()/2 - nextFramePlayer.xSize/2 - collisionBufferXSize) : (platform.getXSize()/2 + nextFramePlayer.xSize/2 + collisionBufferXSize); //Offsets the player either left or right the platform depending on which is closer
                 setLocation(platform.getX() + offset, this.getY());
             }
 
@@ -259,7 +276,7 @@ public class Player extends Actor
         
         //Loops through platforms and checks if below player
         for (Platform platform : platforms) {
-            if(isXOverlappingPlatform(platform) && (platform.getY() > this.getY()) && (platform.getY() - this.getY() <= groundedDistance + platform.getYSize())) {
+            if(isXOverlappingPlatform(platform, 0) && (platform.getY() > this.getY()) && (this.getY() + this.ySize/2 + groundedDistance > platform.getY() - platform.getYSize()/2)) {
                 this.grounded = true;
                 return;
             }
@@ -269,15 +286,34 @@ public class Player extends Actor
 
     private void checkIfTouchingLeftWall() {
         int leftTouchDistance = 5; //Distance that platforms must be within to ground the player
+        int verticalBuffer = 0;
         List<Platform> platforms = getWorld().getObjects(Platform.class); //Gets all platforms
         
         for (Platform platform : platforms) {
-            if(isYOverlappingPlatform(platform) && (platform.getX() > this.getX()) && (platform.getX() - this.getX() <= leftTouchDistance + platform.getXSize())) {
+            boolean isLeftOfPlayer = platform.getX() < this.getX();
+            boolean isCloseEnough = platform.getX() + platform.getXSize()/2 < this.getX() - leftTouchDistance - this.xSize/2;
+            if(isYOverlappingPlatform(platform, verticalBuffer) && isLeftOfPlayer && isCloseEnough) {
                 this.isTouchingLeftWall = true;
                 return;
             }
         }
         this.isTouchingLeftWall = false;
+    }
+
+    private void checkIfTouchingRightWall() {
+        int rightTouchDistance = 5; //Distance that platforms must be within to ground the player
+        int verticalBuffer = 0;
+        List<Platform> platforms = getWorld().getObjects(Platform.class); //Gets all platforms
+        
+        for (Platform platform : platforms) {
+            boolean isRightOfPlayer = platform.getX() > this.getX();
+            boolean isCloseEnough = platform.getX() - platform.getXSize()/2 < this.getX() + rightTouchDistance + this.xSize/2;
+            if(isYOverlappingPlatform(platform, verticalBuffer) && isRightOfPlayer && isCloseEnough) {
+                this.isTouchingRightWall = true;
+                return;
+            }
+        }
+        this.isTouchingRightWall = false;
     }
 
 
@@ -301,12 +337,12 @@ public class Player extends Actor
     }
 
     /**Returns xVel*/
-    public int getXVel() {
+    public double getXVel() {
         return xVel;
     }
 
     /**Returns yVel*/
-    public int getYVel() {
+    public double getYVel() {
         return yVel;
     }
 
