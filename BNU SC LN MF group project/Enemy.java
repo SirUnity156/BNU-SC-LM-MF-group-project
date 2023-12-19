@@ -34,7 +34,7 @@ public class Enemy extends Actor
         int newX = this.getX() + (int)xVel;
         if(newX < leftBoundary || newX > rightBoundary) {
             newX = (movingLeft) ? (leftBoundary) : (rightBoundary);
-            movingLeft ^= true;
+            movingLeft ^= true; //Bit flip
         }
         setLocation(newX, getY());
     }

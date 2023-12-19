@@ -44,8 +44,10 @@ public class Player extends Actor
     private int ticksSinceJumpBufferActive = 0; //Tracks how long the jump buffer has been active for
     
     private double worldGravity, effectiveGravity; //Stores the world gravity acceleration
-    private double jumpApexGravityMultiplier = 0.5; //Gravity will be multiplied by this valuewhile at the jump apex
-    private int jumpApexSpeedThreshold = 5; //A player that moves below this vertical speed will be considered to be at apex
+    private double jumpApexGravityMultiplier = 0.3; //Gravity will be multiplied by this valuewhile at the jump apex
+    private double jumpApexSpeedThreshold = 1.25; //A player that moves below this vertical speed will be considered to be at apex
+
+    private int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration;
 
     private int health = 1;
 
@@ -61,11 +63,15 @@ public class Player extends Actor
     /**Called every tick*/
     public void act()
     {
-        checkCollision(); //Ensures playe ris not intersecting any platforms
+        checkCollision(); //Ensures player is not intersecting any objects
         getInputs(); //Stores the current inputs
         applyInputs(); //Takes the user input and updates values accordingly
         applyMovement(); //Updates player position
+        updateTimers();
+    }
 
+    private void updateTimers() {
+        this.remainingInvincibilityFrames--;
     }
     
     /**Detects if the user is overlapping another platform
@@ -215,6 +221,7 @@ public class Player extends Actor
     }
 
     private void checkEnemyCollision() {
+        if(this.remainingInvincibilityFrames > 0) return;
         List<Enemy> touchedEnemies = getIntersectingObjects(Enemy.class);
         if(touchedEnemies.size() == 0) return;
         int highestDamage = 0;
@@ -222,6 +229,7 @@ public class Player extends Actor
             if(enemy.getDamage() > highestDamage) highestDamage = enemy.getDamage();
         }
         this.setHealth(this.getHealth() - highestDamage);
+        this.remainingInvincibilityFrames = this.invincibilityDuration;
     }
 
     /**Checks if the player intersects with a platform and moves them outside the platform*/

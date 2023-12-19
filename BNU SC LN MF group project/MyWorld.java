@@ -10,7 +10,7 @@ import greenfoot.World;
  */
 public class MyWorld extends World
 {
-    public double gravityAcc = 1.5;
+    public double gravityAcc = 1.2;
     public int floorHeight = getHeight() * 2/3;
     public int tickRate = 50;
     public MyWorld()
