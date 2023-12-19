@@ -28,12 +28,12 @@ public class Player extends Actor
     private double counterStrafingFrictionMultiplier = 5; //Friction is multiplied by this value when pressing direction opposite to current movement direction
     
     private double xVel = 0, yVel = 0; //Velocities
-    private double maxXSpeed = 6; //Maximum allowed x velocity
+    private double maxXSpeed = 4; //Maximum allowed x velocity
     
-    private double groundAcc = 0.8; //Acceleration on ground
-    private double airAcc = 0.6; //Acceleration in air
+    private double groundAcc = 0.6; //Acceleration on ground
+    private double airAcc = 0.5; //Acceleration in air
     
-    private int jumpSpeed = 17; //Speed increase when jumping
+    private int jumpSpeed = 15; //Speed increase when jumping
     private int jumps = 2, remainingJumps = jumps; //Sets number of jumps allowed between floor touches
     private int jumpCooldownTicks = 5; //Length of time after jumping that the player may not jump during
     private int ticksSinceLastJump = 0; //Counts ticks since the last jump
@@ -44,8 +44,10 @@ public class Player extends Actor
     private int ticksSinceJumpBufferActive = 0; //Tracks how long the jump buffer has been active for
     
     private double worldGravity, effectiveGravity; //Stores the world gravity acceleration
-    private double jumpApexGravityMultiplier = 0.5; //Gravity will be multiplied by this valuewhile at the jump apex
-    private int jumpApexSpeedThreshold = 5; //A player that moves below this vertical speed will be considered to be at apex
+    private double jumpApexGravityMultiplier = 0.3; //Gravity will be multiplied by this valuewhile at the jump apex
+    private double jumpApexSpeedThreshold = 1.25; //A player that moves below this vertical speed will be considered to be at apex
+
+    private int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration;
 
     private int health = 1;
 
@@ -55,17 +57,21 @@ public class Player extends Actor
         this.ySize = ySize;
         this.worldGravity = this.effectiveGravity = worldGravity;
 
-        formatImage("images\\man01.png"); //Sets the image to the correct size
+        setImage(formatImage("images\\man01.png")); //Sets the image to the correct size
     }
     
     /**Called every tick*/
     public void act()
     {
-        checkCollision(); //Ensures playe ris not intersecting any platforms
+        checkCollision(); //Ensures player is not intersecting any objects
         getInputs(); //Stores the current inputs
         applyInputs(); //Takes the user input and updates values accordingly
         applyMovement(); //Updates player position
+        updateTimers();
+    }
 
+    private void updateTimers() {
+        this.remainingInvincibilityFrames--;
     }
     
     /**Detects if the user is overlapping another platform
@@ -100,10 +106,10 @@ public class Player extends Actor
     }
 
     /**Sets image size to player size*/
-    private void formatImage(String path) {
+    private GreenfootImage formatImage(String path) {
         GreenfootImage img = new GreenfootImage(path);
         img.scale(xSize, ySize); //Set the size
-        setImage(img);
+        return img;
     }
 
     /**Takes user's inputs and saves them*/
@@ -211,6 +217,19 @@ public class Player extends Actor
     private void checkCollision() {
         checkPlatformCollision();
         checkHazardCollision();
+        checkEnemyCollision();
+    }
+
+    private void checkEnemyCollision() {
+        if(this.remainingInvincibilityFrames > 0) return;
+        List<Enemy> touchedEnemies = getIntersectingObjects(Enemy.class);
+        if(touchedEnemies.size() == 0) return;
+        int highestDamage = 0;
+        for (Enemy enemy : touchedEnemies) {
+            if(enemy.getDamage() > highestDamage) highestDamage = enemy.getDamage();
+        }
+        this.setHealth(this.getHealth() - highestDamage);
+        this.remainingInvincibilityFrames = this.invincibilityDuration;
     }
 
     /**Checks if the player intersects with a platform and moves them outside the platform*/
