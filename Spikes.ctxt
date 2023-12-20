@@ -1,7 +1,0 @@
-#BlueJ class context
-comment0.target=Spikes
-comment1.params=xSize\ ySize
-comment1.target=Spikes(int,\ int)
-comment2.params=
-comment2.target=void\ act()
-numComments=3
