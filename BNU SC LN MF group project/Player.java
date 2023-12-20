@@ -49,7 +49,10 @@ public class Player extends Actor
 
     private int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration;
 
-    private int health = 1;
+    private int health = 10;
+
+    private String imagePath = "man01.png";//"00_idle\\skeleton-00_idle_00.png";
+    
 
     public Player(int xSize, int ySize, double worldGravity, int worldFloorHeight) {
         //Sets field values
@@ -57,7 +60,7 @@ public class Player extends Actor
         this.ySize = ySize;
         this.worldGravity = this.effectiveGravity = worldGravity;
 
-        setImage(formatImage("images\\man01.png")); //Sets the image to the correct size
+        setImage(formatImage(imagePath)); //Sets the image to the correct size
     }
     
     /**Called every tick*/
@@ -68,6 +71,11 @@ public class Player extends Actor
         applyInputs(); //Takes the user input and updates values accordingly
         applyMovement(); //Updates player position
         updateTimers();
+        checkGameOver();
+    }
+
+    private void checkGameOver() {
+        if(this.health <= 0) Greenfoot.setWorld(new GameOverWorld());
     }
 
     private void updateTimers() {
@@ -334,7 +342,6 @@ public class Player extends Actor
         }
         this.isTouchingRightWall = false;
     }
-
 
     private void checkHazardCollision() {
 
