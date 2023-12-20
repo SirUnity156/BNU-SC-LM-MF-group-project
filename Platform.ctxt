@@ -1,9 +1,0 @@
-#BlueJ class context
-comment0.target=Platform
-comment1.params=xSize\ ySize
-comment1.target=Platform(int,\ int)
-comment2.params=
-comment2.target=int\ getXSize()
-comment3.params=
-comment3.target=int\ getYSize()
-numComments=4
