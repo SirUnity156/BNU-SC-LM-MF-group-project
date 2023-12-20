@@ -1,0 +1,12 @@
+#BlueJ class context
+comment0.target=Enemy
+comment1.params=xSize\ ySize\ health\ leftBoundary\ rightBoundary\ damage
+comment1.target=Enemy(int,\ int,\ int,\ int,\ int,\ int)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=path
+comment3.target=greenfoot.GreenfootImage\ formatImage(java.lang.String)
+comment3.text=Sets\ image\ size\ to\ player\ size
+comment4.params=
+comment4.target=int\ getDamage()
+numComments=5

@@ -1,0 +1,13 @@
+#BlueJ class context
+comment0.target=MyWorld
+comment1.params=
+comment1.target=MyWorld()
+comment2.params=path
+comment2.target=greenfoot.GreenfootImage\ formatImage(java.lang.String)
+comment3.params=numCoins
+comment3.target=void\ addCoins(int)
+comment4.params=
+comment4.target=void\ incrementCoinCounter()
+comment5.params=
+comment5.target=void\ updateCoinDisplay()
+numComments=6
