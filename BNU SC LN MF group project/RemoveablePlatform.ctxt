@@ -1,0 +1,9 @@
+#BlueJ class context
+comment0.target=RemoveablePlatform
+comment1.params=xSize\ ySize\ coinCost
+comment1.target=RemoveablePlatform(int,\ int,\ int)
+comment2.params=
+comment2.target=void\ act()
+comment3.params=
+comment3.target=int\ getCoinCost()
+numComments=4

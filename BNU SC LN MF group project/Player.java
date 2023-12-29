@@ -16,8 +16,9 @@ public class Player extends Actor
     private String leftKey = "left";
     private String rightKey = "right";
     private String upKey = "up";
+    private String interactKey = "z";
     
-    private boolean pressingUp = false, pressingLeft = false, pressingRight = false; //Tracks the buttons being pressed
+    private boolean pressingUp = false, pressingLeft = false, pressingRight = false, pressingInteract = false; //Tracks the buttons being pressed
     
     private boolean grounded = false; //Tracks if player is touching the floor
     private boolean isTouchingLeftWall = false, isTouchingRightWall = isTouchingLeftWall;
@@ -128,6 +129,7 @@ public class Player extends Actor
         pressingLeft = Greenfoot.isKeyDown(leftKey);
         pressingRight = Greenfoot.isKeyDown(rightKey);
         pressingUp = Greenfoot.isKeyDown(upKey);
+        pressingInteract = Greenfoot.isKeyDown(interactKey);
     }
 
     /**Performs actions based on user inputs*/
@@ -135,6 +137,14 @@ public class Player extends Actor
         applyHorizontalInput(); //Takes value of pressing left/right and updates values accordingly
         applyJumpInput(); //Jumps if conditions are met
         applyGravity(); //Adds gravity to vertical velocity
+        if(pressingInteract) interact();
+    }
+
+    private void interact() {
+        List<RemoveablePlatform> lockedDoors = getWorld().getObjects(RemoveablePlatform.class);
+        for (RemoveablePlatform removeablePlatform : lockedDoors) {
+            if(((MyWorld) getWorld()).getCoinCount() >= removeablePlatform.getCoinCost()) getWorld().removeObject(removeablePlatform);
+        }
     }
 
     /**Takes values of pressing left/right and updates values accordingly

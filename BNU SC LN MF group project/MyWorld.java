@@ -25,6 +25,8 @@ public class MyWorld extends World
         addObject(new Platform(100 , 200), 500, 300);
         addObject(new Platform(50 , 200), 1000, 400);
         
+        addObject(new RemoveablePlatform(50, 200, 5), 50, 200);
+        
         addObject(new Platform(400, 50), 500, 300);
         
         addObject(new Enemy(20, 35, 100, 200, 400, 2), 400, 400);
@@ -41,7 +43,7 @@ public class MyWorld extends World
     }
 
     // Coin Counter implementation (Store + Increment)
-    private int coinCounter = 0;
+    private int coinCounter = 5;
 
     public void addCoins(int numCoins) {
         for (int i = 0; i < numCoins; i++) {
@@ -57,4 +59,6 @@ public class MyWorld extends World
     private void updateCoinDisplay() {
         showText("Coins: " + coinCounter, getWidth() - 100, 20);
     }
+
+    public int getCoinCount() {return coinCounter;}
 }
