@@ -353,9 +353,27 @@ public class Player extends Actor
         this.isTouchingRightWall = false;
     }
 
-    private void checkHazardCollision() {
+   //Max
 
+    private void checkHazardCollision() {
+        List <EnvironmentalHazard> hazards =  (List<EnvironmentalHazard>) getIntersectingObjects(EnvironmentalHazard.class);
+        int highestDamage = 0;
+        
+        for (int i = 0; i < hazards.size(); i++) {
+            int damage = hazards.get(i).getDamage();
+            if (damage > highestDamage) {
+                highestDamage = damage;
+
+            }
+        }
+        this.setHealth(this.getHealth() - highestDamage);
+   
     }
+
+    public int getDamage() {return this.damage;}
+ 
+
+    //Max end
 
     /**Decreases player velocity*/
     private void applyFriction(double multiplier) {
