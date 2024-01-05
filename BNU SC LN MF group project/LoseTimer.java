@@ -4,38 +4,21 @@ import java.util.TimerTask;
 // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
 import greenfoot.Actor;
 import greenfoot.Color;
+import greenfoot.Greenfoot;
 import greenfoot.GreenfootImage;
 
-public class LoseTimer extends Actor
-{
-    private static int interval;
-    static Timer timer;
+public class LoseTimer extends Actor {
+    private int remainingFrames = 1000;
+
     public LoseTimer() {
-        int delay = 1000;
-        int period = 1000;
-        timer = new Timer();
-        interval = 60;
-
-        timer.scheduleAtFixedRate(new TimerTask() {
-
-            public void run() {
-                setInterval();
-
-            }
-        }, delay, period);
     }
 
-    private static final int setInterval() {
-        if (interval == 1) timer.cancel();
-        return --interval;
-    }
+    public void act() {
 
-    public void act()
-    {
-
-        setImage(new GreenfootImage(Integer.toString(interval), 50, Color.WHITE, Color.BLACK));
-    }
-    public static int getRemainingTime() {
-        return interval;
-    }
+        /*
+         * remainingFrames--;
+         * if (remainingFrames % 10 == 0)
+         * setImage(new GreenfootImage(Integer.toString(remainingFrames / 10), 50,
+         * Color.WHITE, Color.BLACK));
+         */}
 }

@@ -1,53 +1,99 @@
+
 // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
+import java.awt.Point;
+
 import greenfoot.Greenfoot;
 import greenfoot.GreenfootImage;
 import greenfoot.World;
 
-public class MyWorld extends World
-{
+
+public class MyWorld extends World {
     public double gravityAcc = 1.5;
-    public int floorHeight = getHeight() * 2/3;
+    public int floorHeight = getHeight() * 2 / 3;
     private int tickRate = 50;
     private int xSize = getWidth();
     private int ySize = getHeight();
-    
-    public MyWorld()
-    {
+
+    public MyWorld() {
         super(1300, 700, 1);
         setBackground(formatImage("game_background\\background_idea_2.png"));
         Greenfoot.setSpeed(tickRate);
-        Player player = new Player(20, 35, gravityAcc, floorHeight);
+
+        Player player = new Player(20, 35, gravityAcc);
         
-        addObject(player, this.getWidth()/2 - 200, 400);
-        
-        addObject(new Platform(this.getWidth()/2, 100), this.getWidth()/2, 500);
-        addObject(new Platform(2*this.getWidth()/3, 100), this.getWidth()/2, 500);
-        addObject(new Platform(100 , 200), 500, 300);
-        addObject(new Platform(50 , 200), 1000, 400);
-        
-        addObject(new RemoveablePlatform(50, 200, 5), 50, 200);
-        
-        addObject(new Platform(400, 50), 500, 300);
-        
-        addObject(new Enemy(20, 35, 100, 200, 400, 2), 400, 400);
-        
-        addObject(new LoseTimer(), this.getWidth()/2, 50);
-        
-        addCoins(10); // Adjust the number of coins as needed
+        addObject(player, 100, 625);
+
+        //Section 1
+        //Platforms
+        addObject(new Platform(300, 50), 150, 675);
+        addObject(new Platform(200, 50), 200, 550);
+        addObject(new Platform(200, 50), 100, 425);
+        addObject(new Platform(250, 50), 225, 200);
+
+        addObject(new Platform(50, 500), 325, 450);
+
+        //Doors
+        addObject(new RemoveablePlatform(50, 180, 3), 325, 85);
+
+        //Enemies
+        Enemy enemy1 = new Enemy(20, 40, 10, 100, 300, 2);
+        addObject(enemy1, 300, 160);
+
+        //Timer
+        addObject(new LoseTimer(), this.getWidth() / 2, 50);
+
+        //Displays
+        addObject(new PlayerHealthDisplay(), 90, 20);
+        addObject(new PlayerCoinDisplay(), 90, 80);
+
+        //Coins
+        addObject(new Coin(), 275, 610);
+        addObject(new Coin(), 275, 50);
+        addObject(new Coin(), 275, 250);
+
+        //Section 2
+        //Platforms
+        addObject(new Platform(100, 50), 400, 200);
+        addObject(new Platform(150, 50), 550, 100);
+        addObject(new Platform(200, 50), 450, 400);
+        addObject(new Platform(200, 50), 550, 500);
+        addObject(new Platform(350, 50), 500, 675);
+
+        addObject(new Platform(50, 550), 650, 275);
+
+        addObject(new Platform(50, 50), 475, 300);
+        addObject(new Platform(50, 50), 575, 300);
+        addObject(new Platform(50, 50), 600, 200);
+
+        //Doors
+        addObject(new RemoveablePlatform(50, 200, 6), 650, 600);
+
+        //Coins
+        Enemy enemy2 = new Enemy(10, 20, 10, 475, 625, 2);
+        addObject(enemy2, 550, 70);
+
+        //Coins
+        addObject(new Coin(), 600, 25);
+        addObject(new Coin(), 600, 150);
+        addObject(new Coin(), 375, 250);
+
+        //Section 3
+        //Platforms
+        addObject(new Platform(635, 50), 990, this.getHeight()-25);
     }
-    
+
     private GreenfootImage formatImage(String path) {
         GreenfootImage img = new GreenfootImage(path);
-        img.scale(xSize, ySize); //Set the size
+        img.scale(xSize, ySize); // Set the size
         return img;
     }
 
     // Coin Counter implementation (Store + Increment)
-    private int coinCounter = 5;
+    private int coinCounter = 0;
 
-    public void addCoins(int numCoins) {
-        for (int i = 0; i < numCoins; i++) {
-            addObject(new Coin(), Greenfoot.getRandomNumber(getWidth()), Greenfoot.getRandomNumber(getHeight()));
+    public void addCoins(Point[] positions) {
+        for (int i = 0; i < positions.length; i++) {
+            addObject(new Coin(), (int)positions[i].getX(), (int)positions[i].getY());
         }
     }
 
@@ -57,8 +103,10 @@ public class MyWorld extends World
     }
 
     private void updateCoinDisplay() {
-        showText("Coins: " + coinCounter, getWidth() - 100, 20);
+        
     }
 
-    public int getCoinCount() {return coinCounter;}
+    public int getCoinCount() {
+        return coinCounter;
+    }
 }
