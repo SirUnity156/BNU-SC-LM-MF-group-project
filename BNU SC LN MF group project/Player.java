@@ -434,11 +434,27 @@ public class Player extends Actor {
      * If the player is intersecting with a hazard, the damage of the most damaging
      * hazard is applied
      */
-    private void checkHazardCollision() {
 
+    private void checkHazardCollision() {
+        List <EnvironmentalHazard> hazards =  (List<EnvironmentalHazard>) getIntersectingObjects(EnvironmentalHazard.class);
+        int highestDamage = 0;
+        
+        for (int i = 0; i < hazards.size(); i++) {
+            int damage = hazards.get(i).getDamage();
+            if (damage > highestDamage) {
+                highestDamage = damage;
+
+            }
+        }
+        this.setHealth(this.getHealth() - highestDamage);
+   
     }
 
     /** Decreases player velocity */
+    public int getDamage() {return this.damage;}
+ 
+
+    /**Decreases player velocity*/
     private void applyFriction(double multiplier) {
         if (grounded) xVel *= (1 - (groundFriction * multiplier)); // Applies ground friction
         else xVel *= (1 - (airFriction * multiplier)); // Applies air friction
