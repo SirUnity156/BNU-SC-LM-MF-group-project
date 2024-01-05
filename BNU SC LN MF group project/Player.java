@@ -447,12 +447,9 @@ public class Player extends Actor {
             }
         }
         this.setHealth(this.getHealth() - highestDamage);
-   
     }
 
-    /** Decreases player velocity */
-    public int getDamage() {return this.damage;}
- 
+
 
     /**Decreases player velocity*/
     private void applyFriction(double multiplier) {

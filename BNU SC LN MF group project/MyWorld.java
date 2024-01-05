@@ -36,8 +36,8 @@ public class MyWorld extends World {
         addObject(new RemoveablePlatform(50, 180, 3), 325, 85);
 
         //Enemies
-        Enemy enemy1 = new Enemy(20, 40, 10, 100, 300, 2);
-        addObject(enemy1, 300, 160);
+        Enemy enemy11 = new Enemy(20, 40, 10, 100, 300, 2);
+        addObject(enemy11, 300, 160);
 
         //Timer
         addObject(new LoseTimer(), this.getWidth() / 2, 50);
@@ -69,8 +69,8 @@ public class MyWorld extends World {
         addObject(new RemoveablePlatform(50, 200, 6), 650, 600);
 
         //Coins
-        Enemy enemy2 = new Enemy(10, 20, 10, 475, 625, 2);
-        addObject(enemy2, 550, 70);
+        Enemy enemy21 = new Enemy(10, 20, 10, 475, 625, 2);
+        addObject(enemy21, 550, 70);
 
         //Coins
         addObject(new Coin(), 600, 25);
@@ -80,6 +80,27 @@ public class MyWorld extends World {
         //Section 3
         //Platforms
         addObject(new Platform(635, 50), 990, this.getHeight()-25);
+        addObject(new Platform(300, 50), this.getWidth()-150, 500);
+        addObject(new Platform(300, 50), this.getWidth()-150, 300);
+        addObject(new Platform(200, 50), 775, 150);
+
+        addObject(new Platform(50, 50), 800, 550);
+        addObject(new Platform(50, 50), 700, 450);
+        addObject(new Platform(50, 50), 850, 350);
+        addObject(new Platform(50, 50), 1200, 150);
+        addObject(new Platform(50, 50), 1000, 150);
+        
+
+        //Enemies
+        Enemy enemy31 = new Enemy(20, 40, 10, 690, 1300, 2);
+        addObject(enemy31, 1200, this.getHeight()-65);
+        Enemy enemy32 = new Enemy(20, 40, 10, 690, 1300, 2);
+        addObject(enemy32, 690, this.getHeight()-65);
+
+        //Coins
+        addObject(new Coin(), 1275, this.getHeight()-100);
+        addObject(new Coin(), 1275, 400);
+        addObject(new Coin(), 700, 400);
     }
 
     private GreenfootImage formatImage(String path) {

@@ -1,21 +1,22 @@
-import greenfoot.*;
+import greenfoot.Actor;
+import greenfoot.Greenfoot;
 
 public class FinishLine extends Actor {
+    private int cost = 10;
     public void act() {
-        checkPlayerCoins();
+        Player player = getWorld().getObjects(Player.class).get(0);
+        int coins = checkPlayerCoins();
+        if(intersects(player) && coins >= this.cost) {
+            Greenfoot.setWorld(new WinWorld());
+        }
     }
 
-    private void checkPlayerCoins() {
-        MyWorld world = (MyWorld) getWorld(); // 
-        int collectedCoins = world.getCoinCount();
+    private int checkPlayerCoins() {
+        MyWorld world = (MyWorld) getWorld();
+        return world.getCoinCount();
+    }
 
-        if (collectedCoins >= 5) {
-            // End game and display "Winner" message
-            Greenfoot.stop();
-            world.showText("Winner", world.getWidth() / 2, world.getHeight() / 2);
-        } else {
-            // Display message to collect at least five coins
-            world.showText("Collect at least five coins!", world.getWidth() / 2, world.getHeight() / 2);
-        }
+    public int getCost() {
+        return this.cost;
     }
 }
