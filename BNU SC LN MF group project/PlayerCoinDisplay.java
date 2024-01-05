@@ -1,5 +1,3 @@
-import greenfoot.*; // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
-
 /**
  * Write a description of class PlayerCoinDisplay here.
  * 
@@ -8,6 +6,6 @@ import greenfoot.*; // (World, Actor, GreenfootImage, Greenfoot and MouseInfo)
  */
 public class PlayerCoinDisplay extends DevStatDisplay {
     protected String getText() {
-        return "health: " + Integer.toString(((MyWorld) getWorld()).getCoinCount());
+        return "Coins: " + Integer.toString(((MyWorld)getWorld()).getCoinCount());
     }
 }

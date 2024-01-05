@@ -5,7 +5,6 @@ import greenfoot.World;
 
 /**
  * Write a description of class GameOverWorld here.
- * 
  * @author (your name)
  * @version (a version number or a date)
  */

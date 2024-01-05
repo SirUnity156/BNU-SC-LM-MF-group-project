@@ -14,25 +14,20 @@ public class Player extends Actor {
     private int xSize, ySize; // Size of player
 
     // Buttons to control player
-    private String leftKey = "left";
-    private String rightKey = "right";
-    private String upKey = "up";
-    private String interactKey = "z";
+    private String leftKey = "a";
+    private String rightKey = "d";
+    private String upKey = "w";
+    private String interactKey = "e";
 
-    private boolean pressingUp = false, pressingLeft = false, pressingRight = false, pressingInteract = false; // Tracks
-                                                                                                               // the
-                                                                                                               // buttons
-                                                                                                               // being
-                                                                                                               // pressed
+    private boolean pressingUp = false, pressingLeft = false, pressingRight = false, pressingInteract = false; // Tracks the buttons being pressed
 
     private boolean grounded = false; // Tracks if player is touching the floor
     private boolean isTouchingLeftWall = false, isTouchingRightWall = isTouchingLeftWall;
 
     private boolean pressUpLastTick = false; // Tracks if up was pressed on the previous tick
 
-    private double groundFriction = 0.2, airFriction = 0.1; // Values for friction on ground and in air
-    private double counterStrafingFrictionMultiplier = 5; // Friction is multiplied by this value when pressing
-                                                          // direction opposite to current movement direction
+    private double groundFriction = 0.6, airFriction = 0.5; // Values for friction on ground and in air
+    private double counterStrafingFrictionMultiplier = 5; // Friction is multiplied by this value when pressing direction opposite to current movement direction
 
     private double xVel = 0, yVel = 0; // Velocities
     private double maxXSpeed = 4; // Maximum allowed x velocity
@@ -44,29 +39,24 @@ public class Player extends Actor {
     private int jumps = 2, remainingJumps = jumps; // Sets number of jumps allowed between floor touches
     private int jumpCooldownTicks = 5; // Length of time after jumping that the player may not jump during
     private int ticksSinceLastJump = 0; // Counts ticks since the last jump
-    private boolean hasJumpedOnThisUpInput = false; // Tracks if the player has jumped on the current jump input, for
-                                                    // preventing multiple jumps on the same input
+    private boolean hasJumpedOnThisUpInput = false; // Tracks if the player has jumped on the current jump input, for preventing multiple jumps on the same input
 
-    private boolean jumpBufferActive = false; // If this is true, the player will automatically jump at the soonest
-                                              // opportunity
+    private boolean jumpBufferActive = false; // If this is true, the player will automatically jump at the soonest opportunity
     private int jumpBufferDuration = 7; // How many ticks the jump buffer will remain active
     private int ticksSinceJumpBufferActive = 0; // Tracks how long the jump buffer has been active for
 
     private double worldGravity, effectiveGravity; // Stores the world gravity acceleration
     private double jumpApexGravityMultiplier = 0.3; // Gravity will be multiplied by this valuewhile at the jump apex
-    private double jumpApexSpeedThreshold = 1.25; // A player that moves below this vertical speed will be considered to
-                                                  // be at apex
+    private double jumpApexSpeedThreshold = 1.25; // A player that moves below this vertical speed will be considered to be at apex
 
-    private int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration; // Ticks of
-                                                                                                  // invincibility after
-                                                                                                  // being hit
+    private int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration; // Ticks of invincibility after being hit
 
     private int health = 10; // Amount of health points
 
     private String imagePath = "man01.png";// "00_idle\\skeleton-00_idle_00.png"; //Image to represent player
 
     /** Players constructor applying size and world values */
-    public Player(int xSize, int ySize, double worldGravity, int worldFloorHeight) {
+    public Player(int xSize, int ySize, double worldGravity) {
         // Sets field values
         this.xSize = xSize;
         this.ySize = ySize;
@@ -112,32 +102,8 @@ public class Player extends Actor {
     private boolean isXOverlappingPlatform(Platform platform, int buffer) {
         // return getX() + this.xSize/2 >= platform.getX() - platform.getXSize()/2 &&
         // getX() - this.xSize/2 <= platform.getX() + platform.getXSize()/2;
-        boolean rightOfLeftSide = this.getX() + this.xSize / 2 + buffer > platform.getX() - platform.getXSize() / 2; // Checks
-                                                                                                                     // if
-                                                                                                                     // the
-                                                                                                                     // player
-                                                                                                                     // is
-                                                                                                                     // right
-                                                                                                                     // of
-                                                                                                                     // the
-                                                                                                                     // left
-                                                                                                                     // side
-                                                                                                                     // of
-                                                                                                                     // the
-                                                                                                                     // platform
-        boolean leftOfRightSide = this.getX() - this.xSize / 2 - buffer < platform.getX() + platform.getXSize() / 2; // Checks
-                                                                                                                     // if
-                                                                                                                     // the
-                                                                                                                     // player
-                                                                                                                     // is
-                                                                                                                     // left
-                                                                                                                     // of
-                                                                                                                     // the
-                                                                                                                     // right
-                                                                                                                     // side
-                                                                                                                     // of
-                                                                                                                     // the
-                                                                                                                     // platform
+        boolean rightOfLeftSide = this.getX() + this.xSize / 2 + buffer > platform.getX() - platform.getXSize() / 2; // Checks if the player is right of the left side of the platform
+        boolean leftOfRightSide = this.getX() - this.xSize / 2 - buffer < platform.getX() + platform.getXSize() / 2; // Checks if the player is left of the right side of the platform
         return rightOfLeftSide && leftOfRightSide; // If both are true, the function returns true
     }
 
@@ -146,30 +112,8 @@ public class Player extends Actor {
      * platform
      */
     private boolean isYOverlappingPlatform(Platform platform, int buffer) {
-        boolean belowTop = this.getY() + this.ySize / 2 + buffer > platform.getY() - platform.getYSize() / 2; // Checks
-                                                                                                              // if the
-                                                                                                              // bottom
-                                                                                                              // of the
-                                                                                                              // player
-                                                                                                              // is
-                                                                                                              // below
-                                                                                                              // the top
-                                                                                                              // of the
-                                                                                                              // platform
-        boolean aboveBottom = this.getY() - this.ySize / 2 - buffer < platform.getY() + platform.getYSize() / 2; // Checks
-                                                                                                                 // if
-                                                                                                                 // the
-                                                                                                                 // top
-                                                                                                                 // of
-                                                                                                                 // the
-                                                                                                                 // player
-                                                                                                                 // is
-                                                                                                                 // above
-                                                                                                                 // the
-                                                                                                                 // bottom
-                                                                                                                 // of
-                                                                                                                 // the
-                                                                                                                 // platform
+        boolean belowTop = this.getY() + this.ySize / 2 + buffer > platform.getY() - platform.getYSize() / 2; // Checks if the bottom of the player is below the top of the platform
+        boolean aboveBottom = this.getY() - this.ySize / 2 - buffer < platform.getY() + platform.getYSize() / 2; // Checks if the top of the player is above the bottom of the platform
         return belowTop && aboveBottom; // If both are true, the function returns true
     }
 
@@ -212,14 +156,12 @@ public class Player extends Actor {
 
     /** Removes platforms is the player has collected enough coins */
     private void interact() {
-        List<RemoveablePlatform> lockedDoors = getWorld().getObjects(RemoveablePlatform.class); // Gets all removeable
-                                                                                                // platforms
+        List<RemoveablePlatform> lockedDoors = getWorld().getObjects(RemoveablePlatform.class); // Gets all removeable platforms
 
         // Loops through all the doors and checks if the player has enough coins to
         // remove them
         for (RemoveablePlatform removeablePlatform : lockedDoors) {
-            if (((MyWorld) getWorld()).getCoinCount() >= removeablePlatform.getCoinCost())
-                getWorld().removeObject(removeablePlatform);
+            if (((MyWorld) getWorld()).getCoinCount() >= removeablePlatform.getCoinCost()) getWorld().removeObject(removeablePlatform);
         }
     }
 
@@ -235,18 +177,22 @@ public class Player extends Actor {
 
         // Checks if neither/both are pressed
         if (pressingLeft == pressingRight) {
+            if(Math.abs(xVel) <= 2) {
+                xVel = 0;
+                return;
+            }
             applyFriction(1);
             return;
         }
 
         // FIXME this prevents player moving in the air
         // Checks if pressing direction opposite to current movement
-        /*
-         * if((pressingLeft && xVel > 0) || (pressingRight && xVel < 0)){
-         * applyFriction(counterStrafingFrictionMultiplier);
-         * return;
-         * }
-         */
+        
+        if((pressingLeft && xVel > 0) || (pressingRight && xVel < 0)){
+            applyFriction(counterStrafingFrictionMultiplier);
+            return;
+        }
+
 
         // Checks if speed exceeds maximum speed
         if (Math.abs(xVel) >= maxXSpeed) {
@@ -265,10 +211,17 @@ public class Player extends Actor {
         }
 
         // Applies acceleration unless player is colliding with a wall
-        if (pressingLeft)
+        if (pressingLeft) {
             xVel = (!this.isTouchingLeftWall) ? (xVel - airAcc) : (0);
-        if (pressingRight)
+            return;
+        }
+        if (pressingRight) {
             xVel = (!this.isTouchingRightWall) ? (xVel + airAcc) : (0);
+            return;
+        }
+
+
+        applyFriction(1);
     }
 
     /** Applies jump velocity if certain conditions are met */
@@ -386,11 +339,9 @@ public class Player extends Actor {
                     - (platform.getY() - platform.getYSize() / 2); // Distance from bottom of player to top of platform
             int distanceToBottom = (nextFramePlayer.getY() - nextFramePlayer.ySize / 2)
                     - (platform.getY() + platform.getYSize() / 2); // Distance from top of player to bottom of platform
-            boolean isAbove = Math.abs(distanceToTop) < Math.abs(distanceToBottom); // Flag to store if player is above
-                                                                                    // platform
+            boolean isAbove = Math.abs(distanceToTop) < Math.abs(distanceToBottom); // Flag to store if player is above platform
 
-            yDiff = (isAbove) ? (distanceToTop) : (distanceToBottom); // If player is above platform, yDiff is
-                                                                      // distanceToTop, else is distanceToBottom
+            yDiff = (isAbove) ? (distanceToTop) : (distanceToBottom); // If player is above platform, yDiff is distanceToTop, else is distanceToBottom
 
             int distanceToLeft = (nextFramePlayer.getX() + nextFramePlayer.xSize / 2)
                     - (platform.getX() - platform.getXSize() / 2); // Distance from right of player to left of platform
@@ -411,29 +362,14 @@ public class Player extends Actor {
             // Checks to see if a vertical side is closer
             if (Math.abs(yDiff) <= Math.abs(xDiff)) {
                 yVel = 0; // Player's y velocity is halted
-                offset = (yDiff >= 0) ? (-platform.getYSize() / 2 - nextFramePlayer.ySize / 2 - collisionBufferYSize)
-                        : (platform.getYSize() / 2 + nextFramePlayer.ySize / 2 + collisionBufferYSize); // Offsets the
-                                                                                                        // player either
-                                                                                                        // above or
-                                                                                                        // below the
-                                                                                                        // platform
-                                                                                                        // depending on
-                                                                                                        // which is
-                                                                                                        // closer
+                offset = (yDiff >= 0) ? (-platform.getYSize() / 2 - nextFramePlayer.ySize / 2 - collisionBufferYSize) : (platform.getYSize() / 2 + nextFramePlayer.ySize / 2 + collisionBufferYSize); // Offsets the player either above or below the platform depending on which is closer
                 setLocation(this.getX(), platform.getY() + offset); // Update location
             }
 
             // Horizontal side is closer
             else {
                 xVel = 0; // Player's x velocity is halted
-                offset = (xDiff > 0) ? (-platform.getXSize() / 2 - nextFramePlayer.xSize / 2 - collisionBufferXSize)
-                        : (platform.getXSize() / 2 + nextFramePlayer.xSize / 2 + collisionBufferXSize); // Offsets the
-                                                                                                        // player either
-                                                                                                        // left or right
-                                                                                                        // the platform
-                                                                                                        // depending on
-                                                                                                        // which is
-                                                                                                        // closer
+                offset = (xDiff > 0) ? (-platform.getXSize() / 2 - nextFramePlayer.xSize / 2 - collisionBufferXSize) : (platform.getXSize() / 2 + nextFramePlayer.xSize / 2 + collisionBufferXSize); // Offsets the player either left or right the platform depending on which is closer
                 setLocation(platform.getX() + offset, this.getY()); // Update location
             }
 
@@ -451,8 +387,7 @@ public class Player extends Actor {
 
         // Loops through platforms and checks if below player
         for (Platform platform : platforms) {
-            if (isXOverlappingPlatform(platform, 0) && (platform.getY() > this.getY())
-                    && (this.getY() + this.ySize / 2 + groundedDistance > platform.getY() - platform.getYSize() / 2)) {
+            if (isXOverlappingPlatform(platform, 0) && (platform.getY() > this.getY()) && (this.getY() + this.ySize / 2 + groundedDistance > platform.getY() - platform.getYSize() / 2)) {
                 this.grounded = true;
                 return;
             }
@@ -505,19 +440,16 @@ public class Player extends Actor {
 
     /** Decreases player velocity */
     private void applyFriction(double multiplier) {
-        if (grounded)
-            xVel *= 1 - (groundFriction * multiplier); // Applies ground friction
-        else
-            xVel *= 1 - (airFriction * multiplier); // Applies air friction
+        if (grounded) xVel *= (1 - (groundFriction * multiplier)); // Applies ground friction
+        else xVel *= (1 - (airFriction * multiplier)); // Applies air friction
     }
 
     /** Applies gravity acceleration if not grounded */
     private void applyGravity() {
         if (!grounded) {
-            if (-yVel < jumpApexSpeedThreshold)
-                effectiveGravity = worldGravity * jumpApexGravityMultiplier; // Lowers gravity if player is at jump apex
-            else
-                effectiveGravity = worldGravity; // Gravity remains normal when not at apex
+            if (-yVel < jumpApexSpeedThreshold) effectiveGravity = worldGravity * jumpApexGravityMultiplier; // Lowers gravity if player is at jump apex
+            else effectiveGravity = worldGravity; // Gravity remains normal when not at apex
+
             yVel += effectiveGravity; // Applies gravity
         }
     }
