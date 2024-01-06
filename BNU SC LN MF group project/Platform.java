@@ -5,20 +5,25 @@ public class Platform extends Actor
 {
     protected int xSize;
     protected int ySize;
-    protected GreenfootImage img = new GreenfootImage("Wall.jpg");
+    protected String imgPath = "Wall.jpg";
     public Platform(int xSize, int ySize) {
         this.xSize = xSize;
         this.ySize = ySize;
-        img.scale(xSize, ySize);
-        setImage(img);
+        
+        setImage(formatImage(imgPath));
     }
 
-    public Platform(int xSize, int ySize, GreenfootImage img) {
+    public Platform(int xSize, int ySize, String imgPath) {
         this.xSize = xSize;
         this.ySize = ySize;
-        this.img = img;
-        img.scale(xSize, ySize);
-        setImage(img);
+        this.imgPath = imgPath;
+        setImage(formatImage(imgPath));
+    }
+
+    protected GreenfootImage formatImage(String path) {
+        GreenfootImage img = new GreenfootImage(path); // Gets image at specified path
+        img.scale(xSize, ySize); // Set the size
+        return img;
     }
 
     public int getXSize() {return this.xSize;}

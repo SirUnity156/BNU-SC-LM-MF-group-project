@@ -6,12 +6,12 @@ public class WinWorld extends World
 {
     public WinWorld()
     {
-        super(600, 400, 1);
+        super(1300, 700, 1);
         setBackground(formatImage("win_screen.jpg"));
     }
     private GreenfootImage formatImage(String path) {
         GreenfootImage img = new GreenfootImage(path);
-        img.scale(getWidth(), getHeight()); // Set the size
+        img.scale(1300, 700); // Set the size
         return img;
     }
 }

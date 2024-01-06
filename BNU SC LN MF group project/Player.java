@@ -49,7 +49,7 @@ public class Player extends Actor {
     private double jumpApexGravityMultiplier = 0.3; // Gravity will be multiplied by this valuewhile at the jump apex
     private double jumpApexSpeedThreshold = 1.25; // A player that moves below this vertical speed will be considered to be at apex
 
-    private int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration; // Ticks of invincibility after being hit
+    public int invincibilityDuration = 10, remainingInvincibilityFrames = invincibilityDuration; // Ticks of invincibility after being hit
 
     private int health = 10; // Amount of health points
 
@@ -84,6 +84,10 @@ public class Player extends Actor {
     /** Updates the timers by a tick */
     private void updateTimers() {
         this.remainingInvincibilityFrames--; // Decrements remaining invincibilty ticks
+    }
+
+    public void setInvincibilityFrames(int duration) {
+        this.remainingInvincibilityFrames = duration;
     }
 
     /**
@@ -290,15 +294,14 @@ public class Player extends Actor {
      */
     private void checkEnemyCollision() {
         // Checks if player is invincible
-        if (this.remainingInvincibilityFrames > 0)
-            return;
+        if (this.remainingInvincibilityFrames > 0) return;
 
         // Gets all intersecting enemies
         List<Enemy> touchedEnemies = getIntersectingObjects(Enemy.class);
 
         // Returns if no enemies touched
-        if (touchedEnemies.size() == 0)
-            return;
+        if (touchedEnemies.size() == 0) return;
+
         int highestDamage = 0; // Stores highest damage found
 
         // Loops through all enemies
@@ -308,7 +311,7 @@ public class Player extends Actor {
                 highestDamage = enemy.getDamage();
         }
         this.setHealth(this.getHealth() - highestDamage); // Applies damage
-        this.remainingInvincibilityFrames = this.invincibilityDuration; // Sets invincibility frames to I-frame duration
+        setInvincibilityFrames(this.invincibilityDuration); // Sets invincibility frames to I-frame duration
     }
 
     /**
@@ -395,40 +398,6 @@ public class Player extends Actor {
         this.grounded = false;
     }
 
-    private void checkIfTouchingLeftWall() {
-        int leftTouchDistance = 5; // Distance that platforms must be within to ground the player
-        int verticalBuffer = 0;
-        List<Platform> platforms = getWorld().getObjects(Platform.class); // Gets all platforms
-
-        for (Platform platform : platforms) {
-            boolean isLeftOfPlayer = platform.getX() < this.getX();
-            boolean isCloseEnough = platform.getX() + platform.getXSize() / 2 < this.getX() - leftTouchDistance
-                    - this.xSize / 2;
-            if (isYOverlappingPlatform(platform, verticalBuffer) && isLeftOfPlayer && isCloseEnough) {
-                this.isTouchingLeftWall = true;
-                return;
-            }
-        }
-        this.isTouchingLeftWall = false;
-    }
-
-    private void checkIfTouchingRightWall() {
-        int rightTouchDistance = 5; // Distance that platforms must be within to ground the player
-        int verticalBuffer = 0;
-        List<Platform> platforms = getWorld().getObjects(Platform.class); // Gets all platforms
-
-        for (Platform platform : platforms) {
-            boolean isRightOfPlayer = platform.getX() > this.getX();
-            boolean isCloseEnough = platform.getX() - platform.getXSize() / 2 < this.getX() + rightTouchDistance
-                    + this.xSize / 2;
-            if (isYOverlappingPlatform(platform, verticalBuffer) && isRightOfPlayer && isCloseEnough) {
-                this.isTouchingRightWall = true;
-                return;
-            }
-        }
-        this.isTouchingRightWall = false;
-    }
-
     /**
      * Checks if player is touching any environmental hazards
      * If the player is intersecting with a hazard, the damage of the most damaging
@@ -436,7 +405,10 @@ public class Player extends Actor {
      */
 
     private void checkHazardCollision() {
+        if(this.remainingInvincibilityFrames > 0) return;
         List <EnvironmentalHazard> hazards =  (List<EnvironmentalHazard>) getIntersectingObjects(EnvironmentalHazard.class);
+        if(hazards.size() == 0) return;
+
         int highestDamage = 0;
         
         for (int i = 0; i < hazards.size(); i++) {
@@ -447,6 +419,7 @@ public class Player extends Actor {
             }
         }
         this.setHealth(this.getHealth() - highestDamage);
+        setInvincibilityFrames(this.invincibilityDuration);
     }
 
 

@@ -1,9 +1,11 @@
 #BlueJ class context
 comment0.target=FinishLine
-comment1.params=
-comment1.target=void\ act()
+comment1.params=xSize\ ySize\ cost
+comment1.target=FinishLine(int,\ int,\ int)
 comment2.params=
-comment2.target=int\ checkPlayerCoins()
+comment2.target=void\ act()
 comment3.params=
-comment3.target=int\ getCost()
-numComments=4
+comment3.target=int\ checkPlayerCoins()
+comment4.params=path
+comment4.target=greenfoot.GreenfootImage\ formatImage(java.lang.String)
+numComments=5
