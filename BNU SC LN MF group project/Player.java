@@ -26,6 +26,8 @@ public class Player extends Actor {
 
     private boolean pressUpLastTick = false; // Tracks if up was pressed on the previous tick
 
+    private boolean imageFlipped = false;
+
     private double groundFriction = 0.6, airFriction = 0.5; // Values for friction on ground and in air
     private double counterStrafingFrictionMultiplier = 5; // Friction is multiplied by this value when pressing direction opposite to current movement direction
 
@@ -53,7 +55,7 @@ public class Player extends Actor {
 
     private int health = 10; // Amount of health points
 
-    private String imagePath = "man01.png";// "00_idle\\skeleton-00_idle_00.png"; //Image to represent player
+    private String imagePath = "00_idle\\skeleton-00_idle_00.png"; //Image to represent player
 
     /** Players constructor applying size and world values */
     public Player(int xSize, int ySize, double worldGravity) {
@@ -79,6 +81,17 @@ public class Player extends Actor {
     private void checkGameOver() {
         if (this.health <= 0)
             Greenfoot.setWorld(new GameOverWorld());
+    }
+
+    private void setSpriteDirection() {
+        if(this.pressingLeft && !this.imageFlipped) {
+            getImage().mirrorHorizontally();
+            imageFlipped = true;
+        }
+        else if(this.pressingRight && this.imageFlipped) {
+            getImage().mirrorHorizontally();
+            imageFlipped = false;
+        }
     }
 
     /** Updates the timers by a tick */
@@ -278,6 +291,7 @@ public class Player extends Actor {
     /** Updates player position */
     private void applyMovement() {
         setLocation(getX() + (int) Math.round(xVel), getY() + (int) Math.round(yVel));
+        setSpriteDirection();
     }
 
     /** Checks for everything that the player could collide with */
